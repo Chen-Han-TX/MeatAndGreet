@@ -1,6 +1,5 @@
 {
   "expo": {
-    "plugins": ["@react-native-google-signin/google-signin"],
     "name": "MeatAndGreetApp",
     "slug": "meatandgreet",
     "version": "1.0.0",
