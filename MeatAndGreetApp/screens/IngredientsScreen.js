@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, FlatList, StyleSheet, Text, Pressable } from 'react-native';
 import { Button } from 'react-native-elements';
-import { FairpriceScraper } from './ryantoh/FairpriceScraper';
 import { recommendItems} from "./cbh/hotpotItemRecommender";
 
 const mockIngredients = [
@@ -47,7 +46,6 @@ const IngredientsScreen = ({ room }) => {
           </Pressable>
         )}
       />
-      <FairpriceScraper />
         <Button title="Generate Recommendations" buttonStyle={styles.button} onPress={() =>
         {
             console.log(room);

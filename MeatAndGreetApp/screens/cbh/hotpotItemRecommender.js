@@ -1,7 +1,18 @@
 import OpenAI from "openai";
 import { doc, updateDoc } from "firebase/firestore";
-import {db} from "../../firebaseConfig";
+import { db } from "../../firebaseConfig";
+import { ref, push } from 'firebase/database';
 import { getDoc } from "firebase/firestore";
+import { scrape, scrapeFairprice } from "../ryantoh/Scrape";
+
+// .env variables can be accessed from here
+import config from '../.././config';
+/*
+Scrapes Fairprice and returns a dictionary of the schema:
+
+{"name" : {"price": "5", "weight": "200g", "imgURL": "xxx.com/xxx.img"}
+
+*/
 
 /**
  * Asynchronously recommends food items based on user preferences.
@@ -20,7 +31,7 @@ export const recommendItems = async (roomId) => {
         console.log(roomId)
         console.log("Generating recommendations for room")
         const openai = new OpenAI({
-            apiKey: "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",
+            apiKey: config.OPENAI_API_KEY,
             dangerouslyAllowBrowser: "true"
         });
 
@@ -49,26 +60,36 @@ export const recommendItems = async (roomId) => {
             ],
         });
 
-        console.log(completion.choices[0].message.content)
+        // // For debugging only
+        // console.log(completion.choices[0].message.content)
+
+        // Transfers data for scraping
+        // scrapeFairprice(completion.choices[0].message.content)
+
+        const inputArray = completion.choices[0].message.content;
+
+        // We'll store the results here
+        const results = [];
+
+        // Loop through each inner array
+        for (let i = 0; i < inputArray.length; i++) {
+            // The first element of each sub-array is the query
+            const query = inputArray[i][0];
+            
+            // Call the scrape function (synchronously in this example)
+            const result = scrape(query);
+            
+            // Reorganise and push the result into firebase
+            // current format for result
+            const dbRef = ref(db, "rooms", roomId)
+
+            results.push(result);
+        }
+
+    console.log(scrape("beef shabu shabu"))
+
+        
     } catch (error) {
         console.error(error);
     }
-}
-
-/*
-* Fetches all preferences from user.
-* Inputs: List of Preferences in Plain Text
-*/
-function fetchPrefFromUser(preferences) {
-
-}
-
-// Obtain price, weight from FairPrice
-function fetchPriceAndWeight() {
-
-}
-
-// Obtain calorie information from chatGPT
-function fetchGptFoodCalories() {
-
 }

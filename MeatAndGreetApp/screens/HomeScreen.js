@@ -38,7 +38,7 @@ const HomeScreen = ({ room, setRoom, user }) => {
         createdAt: new Date(),
         roomId: uuidv4(),
         isActive: true,
-        members: [user.uid]
+        members: [user.uid],
       };
       const docRef = await addDoc(collection(db, 'rooms'), newRoom);
       setRoom({ id: docRef.id, ...newRoom });

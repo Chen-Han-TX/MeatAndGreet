@@ -12,6 +12,7 @@ import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
 import SettingsScreen from './screens/SettingsScreen';
+// import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -81,6 +82,23 @@ const App = () => {
             {(props) => <IngredientsScreen {...props} room={room} />}
           </Tab.Screen>
         )}
+
+        {/* Conditional Tab Rendering */}
+        {/* {room && (
+          <Tab.Screen
+            name="Fairprice"
+            listeners={{
+              tabPress: (e) => {
+                if (!room) {
+                  e.preventDefault();
+                  Alert.alert('Room Required', 'Please create a room first!');
+                }
+              },
+            }}
+          >
+            {(props) => <FairpriceScraper {...props} room={FairpriceScraper} />}
+          </Tab.Screen>
+        )} */}
 
         <Tab.Screen name="Cart" component={CartScreen} />
         <Tab.Screen name="Setting" component={SettingsScreen} />
