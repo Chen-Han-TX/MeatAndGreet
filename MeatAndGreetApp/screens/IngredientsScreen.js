@@ -1,63 +1,257 @@
-import React, { useState } from 'react';
-import { View, FlatList, StyleSheet, Text, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, FlatList, StyleSheet, Text, Pressable, Modal, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
-import { FairpriceScraper } from './ryantoh/FairpriceScraper';
-import { recommendItems} from "./cbh/hotpotItemRecommender";
-
-const mockIngredients = [
-  { id: '1', name: 'Beef Slices', calories: 200, price: 5.0 },
-  { id: '2', name: 'Pork Belly', calories: 250, price: 6.0 },
-  { id: '3', name: 'Everbest Ring Roll', calories: 100, price: 5.05 },
-];
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig'; // your Firestore db
+import { recommendItems } from './cbh/hotpotItemRecommender';
+import AddIngredientModal from './ingredientCRUD/AddIngredient';
+import EditIngredientModal from './ingredientCRUD/EditIngredient';
 
 const IngredientsScreen = ({ room }) => {
   const [selectedItems, setSelectedItems] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
+  
+  // For controlling the Add & Edit modals
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [ingredientToEdit, setIngredientToEdit] = useState(null);
 
+  useEffect(() => {
+    if (!room?.id) return;
+
+    // 1) Set up an onSnapshot listener on the room document
+    const roomDocRef = doc(db, 'rooms', room.id);
+    const unsubscribe = onSnapshot(roomDocRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const roomData = snapshot.data();
+        if (Array.isArray(roomData.food)) {
+          const newIngredients = roomData.food.map((itemObj, index) => {
+            // itemObj example: { "Broccoli": { price: "1.99", weight: "200 g", imgURL: "..."} }
+            const [title, details] = Object.entries(itemObj)[0];
+            return {
+              id: index.toString(),  // or any unique identifier
+              name: title,
+              price: details.price || 0,
+              weight: details.weight || '',
+              imgURL: details.imgURL || '',
+              calories: details.calories || 0,
+            };
+          });
+          setIngredients(newIngredients);
+        } else {
+          setIngredients([]);
+        }
+      } else {
+        setIngredients([]); // Document doesn't exist
+      }
+    });
+
+    // 2) Cleanup by unsubscribing when the component unmounts
+    return () => unsubscribe();
+  }, [room?.id]);
+
+  // Toggles selection highlight in the FlatList
   const toggleSelection = (item) => {
     setSelectedItems((prev) =>
-      prev.includes(item)
-        ? prev.filter((i) => i !== item)
-        : [...prev, item]
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
     );
   };
 
   const isSelected = (item) => selectedItems.includes(item);
 
+  // -------------------------------------
+  // C R E A T E
+  // -------------------------------------
+  const handleAddIngredient = async (newIngredient) => {
+    try {
+      // newIngredient = { name, price, weight, imgURL, calories }
+      const roomDocRef = doc(db, 'rooms', room.id);
+      // Convert the existing ingredients array into the "food" format
+      const newFoodEntry = {
+        [newIngredient.name]: {
+          price: newIngredient.price,
+          weight: newIngredient.weight,
+          imgURL: newIngredient.imgURL,
+          calories: newIngredient.calories,
+        },
+      };
+
+      // Merge with existing "food" array
+      const updatedFood = [
+        ...ingredients.map((ing) => ({
+          [ing.name]: {
+            price: ing.price,
+            weight: ing.weight,
+            imgURL: ing.imgURL,
+            calories: ing.calories,
+          },
+        })),
+        newFoodEntry,
+      ];
+
+      // Update Firestore
+      await updateDoc(roomDocRef, { food: updatedFood });
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Error adding ingredient:', error);
+    }
+  };
+
+  // -------------------------------------
+  // U P D A T E
+  // -------------------------------------
+  const handleOpenEdit = (ingredient) => {
+    setIngredientToEdit(ingredient);
+    setEditModalVisible(true);
+  };
+
+  const handleEditIngredient = async (updatedIngredient) => {
+    try {
+      const roomDocRef = doc(db, 'rooms', room.id);
+
+      // Convert current 'ingredients' to Firestore format
+      // but replace the one being edited
+      const updatedFood = ingredients.map((ing) => {
+        if (ing.id === updatedIngredient.id) {
+          return {
+            [updatedIngredient.name]: {
+              price: updatedIngredient.price,
+              weight: updatedIngredient.weight,
+              imgURL: updatedIngredient.imgURL,
+              calories: updatedIngredient.calories,
+            },
+          };
+        }
+        // otherwise keep it as is
+        return {
+          [ing.name]: {
+            price: ing.price,
+            weight: ing.weight,
+            imgURL: ing.imgURL,
+            calories: ing.calories,
+          },
+        };
+      });
+
+      await updateDoc(roomDocRef, { food: updatedFood });
+      setEditModalVisible(false);
+      setIngredientToEdit(null);
+    } catch (error) {
+      console.error('Error editing ingredient:', error);
+    }
+  };
+
+  // -------------------------------------
+  // D E L E T E
+  // -------------------------------------
+  const handleDeleteIngredient = async (ingredient) => {
+    try {
+      const roomDocRef = doc(db, 'rooms', room.id);
+
+      // Filter out the item we want to delete
+      const updatedFood = ingredients
+        .filter((ing) => ing.id !== ingredient.id)
+        .map((ing) => ({
+          [ing.name]: {
+            price: ing.price,
+            weight: ing.weight,
+            imgURL: ing.imgURL,
+            calories: ing.calories,
+          },
+        }));
+
+      await updateDoc(roomDocRef, { food: updatedFood });
+      Alert.alert('Deleted', `Ingredient "${ingredient.name}" has been deleted.`);
+    } catch (error) {
+      console.error('Error deleting ingredient:', error);
+    }
+  };
+
+  // Example action buttons
+  const renderItem = ({ item }) => (
+    <Pressable
+      style={[
+        styles.listItem,
+        isSelected(item) && styles.selected,
+      ]}
+      onPress={() => toggleSelection(item)}
+      onLongPress={() => handleOpenEdit(item)} // open edit on long press
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View>
+          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.itemDetails}>
+            {`Weight: ${item.weight} | $${item.price}`}
+          </Text>
+        </View>
+        {/* Simple delete button */}
+        <Pressable
+          style={styles.deleteButton}
+          onPress={() => handleDeleteIngredient(item)}
+        >
+          <Text style={{ color: 'white' }}>Delete</Text>
+        </Pressable>
+      </View>
+    </Pressable>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Ingredients Selection</Text>
-      <Text style={styles.subtitle}>Room ID: {room?.roomId}</Text>
+      <Text style={styles.title}>Ingredient Selection</Text>
+      <Text style={styles.subtitle}>Room ID: {room?.id}</Text>
+
       <FlatList
-        data={mockIngredients}
+        data={ingredients}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Pressable
-            style={[
-              styles.listItem,
-              isSelected(item) && styles.selected,
-            ]}
-            onPress={() => toggleSelection(item)}
-          >
-            <View>
-              <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemDetails}>
-                {`Calories: ${item.calories} kcal | $${item.price}`}
-              </Text>
-            </View>
-          </Pressable>
-        )}
+        renderItem={renderItem}
       />
-      <FairpriceScraper />
-        <Button title="Generate Recommendations" buttonStyle={styles.button} onPress={() =>
-        {
-            console.log(room);
-            recommendItems(room.id)
+
+      <Button
+        title="Add New Ingredient"
+        buttonStyle={styles.button}
+        onPress={() => setShowAddModal(true)}
+      />
+
+      <Button
+        title="Generate Recommendations"
+        buttonStyle={[styles.button, { backgroundColor: '#2196F3' }]}
+        onPress={() => {
+          recommendItems(room.id);
         }}
+      />
+
+      {/* MODALS */}
+      <Modal
+        visible={showAddModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowAddModal(false)}
+      >
+        <AddIngredientModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddIngredient}
         />
-        <Button title="Confirm Selection" buttonStyle={styles.button} />
+      </Modal>
+
+      <Modal
+        visible={editModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        {ingredientToEdit && (
+          <EditIngredientModal
+            ingredient={ingredientToEdit}
+            onClose={() => setEditModalVisible(false)}
+            onSave={handleEditIngredient}
+          />
+        )}
+      </Modal>
     </View>
   );
 };
+
+export default IngredientsScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
@@ -74,7 +268,11 @@ const styles = StyleSheet.create({
   selected: { backgroundColor: '#FFEBEE', borderColor: '#FF5722' },
   itemName: { fontSize: 18, fontWeight: 'bold' },
   itemDetails: { fontSize: 14, color: 'gray' },
-  button: { backgroundColor: '#4CAF50', margin: 20 },
+  button: { backgroundColor: '#4CAF50', margin: 10 },
+  deleteButton: {
+    backgroundColor: '#e53935',
+    padding: 8,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
 });
-
-export default IngredientsScreen;
