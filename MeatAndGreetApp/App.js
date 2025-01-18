@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -18,16 +19,27 @@ const AuthStack = createStackNavigator();
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
   const [room, setRoom] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
+      setLoading(false); // Stop loading once auth state is determined
     });
     return unsubscribe;
   }, []);
 
-  // Authentication flow
+  if (loading) {
+    // Show a loading indicator while Firebase determines the auth state
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF5722" />
+      </View>
+    );
+  }
+
+  // Render authentication flow if the user is not authenticated
   if (!user) {
     return (
       <NavigationContainer>
@@ -39,7 +51,7 @@ const App = () => {
     );
   }
 
-  // Main application flow
+  // Render main application flow if the user is authenticated
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -88,5 +100,14 @@ const App = () => {
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+});
 
 export default App;
