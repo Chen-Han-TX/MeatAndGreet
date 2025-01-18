@@ -5,6 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { v4 as uuidv4 } from 'uuid';
 import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
+import { Icon } from 'react-native-elements';
+import { auth } from './firebaseConfig';
 import * as Clipboard from 'expo-clipboard';
 import 'react-native-get-random-values';
 
@@ -16,7 +18,6 @@ import TimerScreen from './screens/TimerScreen';
 import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
 
 import { Settings } from 'react-native';
-import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -103,23 +104,6 @@ const App = () => {
               shareRoom={shareRoom}
             />
           )}
-        </Tab.Screen>
-
-        <Tab.Screen
-          name="Ingredients"
-          listeners={({ navigation }) => ({
-            tabPress: (e) => {
-              if (!room) {
-                e.preventDefault(); // Prevent navigation if room doesn't exist
-                alert('Please create a room first!');
-              }
-            },
-          })}
-          options={{
-            tabBarStyle: room ? {} : { display: 'none' }, // Hide tab when no room exists
-          }}
-        >
-         {(props) => <IngredientsStack {...props} room={room} />}
         </Tab.Screen>
 
         {/* Conditional Tab Rendering */}
