@@ -18,7 +18,7 @@ export const recommendItems = async (roomId) => {
     // 1) Initialize OpenAI
     const openai = new OpenAI({
       apiKey: config.OPENAI_API_KEY,
-      dangerouslyAllowBrowser: "true", // If needed in your environment
+      dangerouslyAllowBrowser: true
     });
 
     // 2) Fetch the current room
@@ -79,6 +79,7 @@ export const recommendItems = async (roomId) => {
       const [productName] = inputArray[i]; // item = [ "Beef Shabu Shabu", "🥩" ]
       // Call your scrape function (async)
       const result = await scrape(productName);
+      console.log("Scraped result:", result);
       if (result) {
         scrapedResults.push(result);
       }
@@ -97,6 +98,7 @@ export const recommendItems = async (roomId) => {
           price: String(item.price),
           weight: item.weight,
           imgURL: item.image,
+          storeURL: item.link
         },
       };
       existingFood.push(entry);

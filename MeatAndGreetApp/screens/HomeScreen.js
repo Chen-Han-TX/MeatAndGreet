@@ -6,7 +6,7 @@ import {
   addDoc,
   updateDoc,
   getDoc,
-  doc
+  doc, onSnapshot
 } from 'firebase/firestore';
 import 'react-native-get-random-values';
 import * as Clipboard from 'expo-clipboard';
@@ -28,14 +28,30 @@ const HomeScreen = ({ room, setRoom, user }) => {
     alert(`${title}: ${message}`);
   };
 
-  // Fetch emails whenever the room changes
+  // Ensure current user can see whenever the room updates
   useEffect(() => {
-    if (room?.members?.length) {
-      fetchMemberEmails(room.members);
-    } else {
-      setMemberEmails([]);
+    if (!room?.id) {
+      setRoom(null); // Clear room state if no room is selected
+      return;
     }
-  }, [room]);
+
+    const roomRef = doc(db, 'rooms', room.id);
+
+    const unsubscribe = onSnapshot(roomRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setRoom({ id: docSnap.id, ...docSnap.data() });
+        fetchMemberEmails(docSnap.data().members);
+      } else {
+        console.warn(`Room with ID ${room.id} no longer exists`);
+        setRoom(null);
+      }
+    }, (error) => {
+      console.error('Error listening to room updates:', error);
+    });
+
+    // Cleanup listener on component unmount or room change
+    return () => unsubscribe();
+  }, [room?.id]);
 
   // Fetch member emails from Firestore
   const fetchMemberEmails = async (memberIds) => {

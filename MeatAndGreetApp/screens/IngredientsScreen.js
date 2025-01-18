@@ -6,6 +6,7 @@ import { db } from '../firebaseConfig'; // your Firestore db
 import { recommendItems } from './cbh/hotpotItemRecommender';
 import AddIngredientModal from './ingredientCRUD/AddIngredient';
 import EditIngredientModal from './ingredientCRUD/EditIngredient';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const IngredientsScreen = ({ room }) => {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -35,6 +36,7 @@ const IngredientsScreen = ({ room }) => {
               weight: details.weight || '',
               imgURL: details.imgURL || '',
               calories: details.calories || 0,
+              storeURL: details.storeURL || '',
             };
           });
           setIngredients(newIngredients);
@@ -55,6 +57,8 @@ const IngredientsScreen = ({ room }) => {
     setSelectedItems((prev) =>
       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
     );
+    Clipboard.setString(item.storeURL);
+    alert("Item link copied to clipboard!");
   };
 
   const isSelected = (item) => selectedItems.includes(item);
@@ -181,7 +185,11 @@ const IngredientsScreen = ({ room }) => {
         <View>
           <Text style={styles.itemName}>{item.name}</Text>
           <Text style={styles.itemDetails}>
-            {`Weight: ${item.weight} | $${item.price}`}
+            {/* Sometimes item weight doesnt give actual weight */}
+            {`${item.weight} | $${item.price}`}
+          </Text>
+          <Text style={styles.itemDetails}>
+            {`Link to product: ${item.storeURL}`}
           </Text>
         </View>
         {/* Simple delete button */}
@@ -198,8 +206,8 @@ const IngredientsScreen = ({ room }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Ingredient Selection</Text>
-      <Text style={styles.subtitle}>Room ID: {room?.id}</Text>
-
+      <Text style={styles.subtitle}>Tip: You may delete unwanted recommendations or generate recommendations repeatedly!</Text>
+      <Text style={styles.subtitle}>Tip: You may also copy the link to the product to your clipboard by clicking on the item!</Text>
       <FlatList
         data={ingredients}
         keyExtractor={(item) => item.id}

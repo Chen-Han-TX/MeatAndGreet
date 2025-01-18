@@ -92,7 +92,8 @@ export async function scrape(query) {
       });
     });
 
-    console.log("Scraped results:", scrapedResults[0]);
+    console.log("Scraped results:", scrapedResults);
+    // Return one result
     return scrapedResults[0];
   } catch (error) {
     console.error("Error scraping FairPrice:", error);
