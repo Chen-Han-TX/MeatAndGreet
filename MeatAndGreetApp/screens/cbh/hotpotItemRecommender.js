@@ -52,7 +52,8 @@ export const recommendItems = async (roomId) => {
                     role: "developer",
                     content: "You are to take in a string of user preferences of food and return a Javascript array." +
                         "The array MUST be structured in this way [[item, an emoji of the food item], [item, an emoji of the food item], ...]" +
-                        "You are to ONLY RETURN an array object, without any other words or content whatsoever." },
+                        "You are to ONLY RETURN an array object, without any other words or content or formatting whatsoever." +
+                        "Note, you are to phrase the item name such that it is similar to common supermarket food items."},
                 {
                     role: "user",
                     content: groupPreferences,
