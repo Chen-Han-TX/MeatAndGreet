@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, FlatList, StyleSheet, Text, Pressable } from 'react-native';
 import { Button } from 'react-native-elements';
 import { FairpriceScraper } from './ryantoh/FairpriceScraper';
+import { recommendItems} from "./cbh/hotpotItemRecommender";
 
 const mockIngredients = [
   { id: '1', name: 'Beef Slices', calories: 200, price: 5.0 },
@@ -47,7 +48,8 @@ const IngredientsScreen = ({ room }) => {
         )}
       />
       <FairpriceScraper />
-      <Button title="Confirm Selection" buttonStyle={styles.button} />
+        <Button title="Generate Recommendations" buttonStyle={styles.button} onPress={() => recommendItems("fuck")}/>
+        <Button title="Confirm Selection" buttonStyle={styles.button} />
     </View>
   );
 };
