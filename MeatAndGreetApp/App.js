@@ -11,7 +11,7 @@ import Login from './screens/Login';
 import SignUp from './screens/SignUp';
 import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
-import CartScreen from './screens/CartScreen';
+import Timer from './screens/ryantoh/Timer';
 import SettingsScreen from './screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
@@ -60,7 +60,7 @@ const App = () => {
             const icons = {
               Home: 'home',
               Ingredients: 'list',
-              Cart: 'shopping-cart',
+              Timer: 'timer',
               Setting: 'settings',
             };
             return (
@@ -94,7 +94,7 @@ const App = () => {
           </Tab.Screen>
         )}
 
-        <Tab.Screen name="Cart" component={CartScreen} />
+        <Tab.Screen name="Timer" component={Timer} />
         <Tab.Screen name="Setting" component={SettingsScreen} />
       </Tab.Navigator>
     </NavigationContainer>
