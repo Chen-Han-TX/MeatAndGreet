@@ -1,27 +1,94 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TextInput, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
+import { collection, addDoc, updateDoc, getDoc, doc } from 'firebase/firestore';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
+import * as Clipboard from 'expo-clipboard';
+import { db } from '../firebaseConfig';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 
-const HomeScreen = ({ room, startPlanning, leaveRoom, shareRoom, joinRoom, navigation }) => {
+const HomeScreen = ({ room, setRoom, navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [roomIdInput, setRoomIdInput] = useState('');
 
-  const handleJoinRoom = () => {
-    if (!roomIdInput.trim()) {
-      Alert.alert('Invalid Room ID', 'Please enter a valid Room ID.');
-      return;
-    }
-    joinRoom(roomIdInput.trim());
-    setModalVisible(false);
-    setRoomIdInput(''); // Clear the input field
+  const showAlert = (title, message) => {
+    Alert.alert(title, message);
   };
 
-  const handleInputChange = (text) => {
-    // Limit input to 30 characters
-    if (text.length <= 30) {
-      setRoomIdInput(text);
-    } else {
-      Alert.alert('Character Limit Exceeded', 'Room ID must be 30 characters or less.');
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      Alert.alert('Signed Out', 'You have successfully signed out.');
+      // Redirect the user to the login screen or handle navigation
+    } catch (error) {
+      console.error('Error signing out:', error);
+      Alert.alert('Error', 'Failed to sign out. Please try again.');
+    }
+  };
+
+  const startPlanning = async () => {
+    if (room) {
+      showAlert('Room Already Active', 'You already have an active room.');
+      return;
+    }
+    try {
+      const newRoom = {
+        createdAt: new Date(),
+        roomId: uuidv4(),
+        isActive: true,
+      };
+      const docRef = await addDoc(collection(db, 'rooms'), newRoom);
+      setRoom({ id: docRef.id, ...newRoom });
+      showAlert('Room Created', `Room ID: ${newRoom.roomId}`);
+    } catch (error) {
+      console.error('Error creating room:', error);
+      showAlert('Error', 'Failed to create room. Please try again.');
+    }
+  };
+
+  const leaveRoom = async () => {
+    if (!room) {
+      showAlert('No Active Room', 'You are not in a room.');
+      return;
+    }
+    try {
+      const roomDocRef = doc(db, 'rooms', room.id);
+      await updateDoc(roomDocRef, { isActive: false });
+      setRoom(null);
+      showAlert('Room Left', 'You have successfully left the room.');
+    } catch (error) {
+      console.error('Error leaving room:', error);
+      showAlert('Error', 'Failed to leave the room. Please try again.');
+    }
+  };
+
+  const shareRoom = () => {
+    if (room) {
+      Clipboard.setString(room.roomId);
+      showAlert('Room ID Copied', 'The Room ID has been copied to your clipboard.');
+    }
+  };
+
+  const handleJoinRoom = async () => {
+    if (!roomIdInput.trim()) {
+      showAlert('Invalid Room ID', 'Please enter a valid Room ID.');
+      return;
+    }
+    try {
+      const roomDocRef = doc(db, 'rooms', roomIdInput.trim());
+      const roomDoc = await getDoc(roomDocRef);
+      if (roomDoc.exists() && roomDoc.data().isActive) {
+        setRoom({ id: roomDoc.id, ...roomDoc.data() });
+        showAlert('Success', 'You have joined the room.');
+        setModalVisible(false);
+      } else {
+        showAlert('Invalid Room', 'The room does not exist or is inactive.');
+      }
+    } catch (error) {
+      console.error('Error joining room:', error);
+      showAlert('Error', 'Failed to join the room. Please try again.');
     }
   };
 
@@ -36,32 +103,42 @@ const HomeScreen = ({ room, startPlanning, leaveRoom, shareRoom, joinRoom, navig
             title="Share Room ID"
             buttonStyle={styles.shareButton}
             onPress={shareRoom}
+            accessibilityLabel="Share the Room ID with others"
           />
           <Button
             title="Leave Room"
             buttonStyle={styles.leaveButton}
             onPress={leaveRoom}
+            accessibilityLabel="Leave the current room"
           />
         </>
       ) : (
         <>
+          <Button
+            title="Sign Out"
+            buttonStyle={styles.signOutButton}
+            onPress={handleSignOut}
+          />
           <Text style={styles.title}>Welcome to Meat and Greet!</Text>
           <Text style={styles.subtitle}>Plan the perfect hotpot with ease.</Text>
+
           <Button
             title="Start Planning"
             buttonStyle={styles.startButton}
-            onPress={() => startPlanning(navigation)}
+            onPress={startPlanning}
+            accessibilityLabel="Create a new room to start planning"
           />
           <Button
             title="Join Room"
             buttonStyle={styles.joinButton}
             onPress={() => setModalVisible(true)}
+            accessibilityLabel="Join an existing room"
           />
         </>
       )}
 
       {/* Modal for Joining a Room */}
-      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+      <Modal visible={isModalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Enter Room ID</Text>
@@ -69,19 +146,21 @@ const HomeScreen = ({ room, startPlanning, leaveRoom, shareRoom, joinRoom, navig
               style={styles.input}
               placeholder="Room ID (max 30 characters)"
               value={roomIdInput}
-              onChangeText={handleInputChange}
-              maxLength={30} // Optional, enforces limit on the TextInput level
+              onChangeText={setRoomIdInput}
+              maxLength={30}
             />
             <Button
               title="Join"
               buttonStyle={styles.modalButton}
               onPress={handleJoinRoom}
+              accessibilityLabel="Join the room with the entered ID"
             />
             <Button
               title="Cancel"
               type="outline"
               buttonStyle={styles.modalCancelButton}
               onPress={() => setModalVisible(false)}
+              accessibilityLabel="Cancel joining a room"
             />
           </View>
         </View>

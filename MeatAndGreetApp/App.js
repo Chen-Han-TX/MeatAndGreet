@@ -1,73 +1,33 @@
-import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+// App.js
+import React, { useState, useEffect } from 'react';
+import { Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
-import { v4 as uuidv4 } from 'uuid';
-import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
-import { db } from './firebaseConfig';
-import * as Clipboard from 'expo-clipboard';
-import 'react-native-get-random-values';
+import { auth } from './firebaseConfig';
 
+import LoginSignUp from './screens/LoginSignUp';
 import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
-import { Settings } from 'react-native';
+import SettingsScreen from './screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
-
-const IngredientsStack = ({ room }) => (
-  <Stack.Navigator>
-    <Stack.Screen
-      name="IngredientsScreen"
-      options={{ headerShown: false }}
-    >
-      {(props) => <IngredientsScreen {...props} room={room} />}
-    </Stack.Screen>
-  </Stack.Navigator>
-);
 
 const App = () => {
-  const [room, setRoom] = useState(null);
+  const [user, setUser] = useState(null);
+  const [room, setRoom] = useState(null); // Tracks if a room is created
 
-  const startPlanning = async () => {
-    try {
-      const newRoom = {
-        createdAt: new Date(),
-        roomId: uuidv4(),
-        isActive: true, // Mark as active
-      };
-      const docRef = await addDoc(collection(db, 'rooms'), newRoom);
-      const createdRoom = { id: docRef.id, ...newRoom };
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+    });
+    return unsubscribe;
+  }, []);
 
-      setRoom(createdRoom);
-    } catch (error) {
-      console.error('Error creating room:', error);
-    }
-  };
-
-  const leaveRoom = async () => {
-    try {
-      if (room) {
-        const roomDocRef = doc(db, 'rooms', room.id);
-        await updateDoc(roomDocRef, { isActive: false }); // Mark room as inactive
-        setRoom(null);
-        alert('Room marked as inactive.');
-      }
-    } catch (error) {
-      console.error('Error leaving room:', error);
-      alert('Error leaving the room. Please try again.');
-    }
-  };
-
-  const shareRoom = () => {
-    if (room) {
-      const roomId = room.roomId;
-      Clipboard.setStringAsync(roomId);
-      alert('Room ID copied to clipboard!');
-    }
-  };
+  if (!user) {
+    return <LoginSignUp />;
+  }
 
   return (
     <NavigationContainer>
@@ -90,40 +50,29 @@ const App = () => {
       >
         <Tab.Screen name="Home">
           {(props) => (
-            <HomeScreen
-              {...props}
-              room={room}
-              startPlanning={startPlanning}
-              leaveRoom={leaveRoom}
-              shareRoom={shareRoom}
-            />
+            <HomeScreen {...props} room={room} setRoom={setRoom} />
           )}
         </Tab.Screen>
 
-        <Tab.Screen
-          name="Ingredients"
-          listeners={({ navigation }) => ({
-            tabPress: (e) => {
-              if (!room) {
-                e.preventDefault(); // Prevent navigation if room doesn't exist
-                alert('Please create a room first!');
-              }
-            },
-          })}
-          options={{
-            tabBarStyle: room ? {} : { display: 'none' }, // Hide tab when no room exists
-          }}
-        >
-          {(props) => <IngredientsStack {...props} room={room} />}
-        </Tab.Screen>
+        {/* Conditional Tab Rendering */}
+        {room && (
+          <Tab.Screen
+            name="Ingredients"
+            listeners={{
+              tabPress: (e) => {
+                if (!room) {
+                  e.preventDefault();
+                  Alert.alert('Room Required', 'Please create a room first!');
+                }
+              },
+            }}
+          >
+            {(props) => <IngredientsScreen {...props} room={room} />}
+          </Tab.Screen>
+        )}
 
-        <Tab.Screen name="Cart">
-          {(props) => <CartScreen {...props} />}
-        </Tab.Screen>
-
-        <Tab.Screen name="Setting">
-          {(props) => <Settings {...props} />}
-        </Tab.Screen>
+        <Tab.Screen name="Cart" component={CartScreen} />
+        <Tab.Screen name="Setting" component={SettingsScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
