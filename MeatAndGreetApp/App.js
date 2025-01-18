@@ -7,11 +7,21 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import { auth } from './firebaseConfig';
 
+import { v4 as uuidv4 } from 'uuid';
+import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { db } from './firebaseConfig';
+import * as Clipboard from 'expo-clipboard';
+import 'react-native-get-random-values';
+
+
 import LoginSignUp from './screens/LoginSignUp';
 import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
 import SettingsScreen from './screens/SettingsScreen';
+
+
+import TimerScreen from './screens/TimerScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -55,6 +65,7 @@ const App = () => {
               Ingredients: 'list',
               Cart: 'shopping-cart',
               Setting: 'settings',
+                Timer: 'schedule',
             };
             return (
               <Icon name={icons[route.name]} type="material" color={color} size={size} />
@@ -70,6 +81,7 @@ const App = () => {
             <HomeScreen {...props} room={room} setRoom={setRoom} />
           )}
         </Tab.Screen>
+
 
         {/* Conditional Tab Rendering */}
         {room && (
@@ -90,6 +102,7 @@ const App = () => {
 
         <Tab.Screen name="Cart" component={CartScreen} />
         <Tab.Screen name="Setting" component={SettingsScreen} />
+
       </Tab.Navigator>
     </NavigationContainer>
   );
