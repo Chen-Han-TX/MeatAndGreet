@@ -16,27 +16,24 @@ import { getDoc } from "firebase/firestore";
  * successfully, or logs an error in case of failure.
  */
 export const recommendItems = async (roomId) => {
-    const sampleGroupPreferences = "I like eating pork collar and shabu shabu"
-        + "I like enoki mushrooms and cheese tofu"
-        + "Cheese tofu and tonkotsu broth is a must have for me"
-        + "I like eating beancurd skin rolls and prawns"
     try {
+        console.log(roomId)
         console.log("Generating recommendations for room")
         const openai = new OpenAI({
-            apiKey: "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",
+            apiKey: "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",
             dangerouslyAllowBrowser: "true"
         });
 
         let groupPreferences = ""
         const roomDocRef = doc(db, "rooms", roomId);
         const room = await getDoc(roomDocRef);
-
-        for (const memberId of room.members) {
+        for (const memberId of room.data().members) {
             const docRef = doc(db, "users", memberId);
             const member = await getDoc(docRef)
-            groupPreferences += member.preferences
+            groupPreferences += member.data().preferences + " "
         }
 
+        console.log(groupPreferences)
         const completion = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
@@ -44,7 +41,8 @@ export const recommendItems = async (roomId) => {
                     role: "developer",
                     content: "You are to take in a string of user preferences of food and return a Javascript array." +
                         "The array MUST be structured in this way [[item, an emoji of the food item], [item, an emoji of the food item], ...]" +
-                        "You are to ONLY RETURN an array object, without any other words or content whatsoever." },
+                        "You are to ONLY RETURN an array object, without any other words or content or formatting whatsoever." +
+                        "Note, you are to phrase the item name such that it is similar to common supermarket food items."},
                 {
                     role: "user",
                     content: groupPreferences,
@@ -54,7 +52,7 @@ export const recommendItems = async (roomId) => {
 
         console.log(completion.choices[0].message.content)
     } catch (error) {
-
+        console.error(error);
     }
 }
 

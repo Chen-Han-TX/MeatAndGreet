@@ -48,7 +48,12 @@ const IngredientsScreen = ({ room }) => {
         )}
       />
       <FairpriceScraper />
-        <Button title="Generate Recommendations" buttonStyle={styles.button} onPress={() => recommendItems("fuck")}/>
+        <Button title="Generate Recommendations" buttonStyle={styles.button} onPress={() =>
+        {
+            console.log(room);
+            recommendItems(room.id)
+        }}
+        />
         <Button title="Confirm Selection" buttonStyle={styles.button} />
     </View>
   );
