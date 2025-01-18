@@ -58,11 +58,6 @@ const HomeScreen = ({ room, startPlanning, leaveRoom, shareRoom, joinRoom, navig
             buttonStyle={styles.joinButton}
             onPress={() => setModalVisible(true)}
           />
-          <Button
-              title="Testing chatgpt"
-              buttonStyle={styles.joinButton}
-              onPress={() => recommendItems("lol")}
-          />
         </>
       )}
 

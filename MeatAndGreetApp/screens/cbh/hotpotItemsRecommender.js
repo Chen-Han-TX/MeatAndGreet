@@ -27,8 +27,8 @@ export const recommendItems = async (roomId) => {
         });
 
         let groupPreferences = ""
-        const docRef = doc(db, "rooms", roomId);
-        const room = await getDoc(docRef);
+        const roomDocRef = doc(db, "rooms", roomId);
+        const room = await getDoc(roomDocRef);
 
         for (const memberId of room.members) {
             const docRef = doc(db, "users", memberId);
