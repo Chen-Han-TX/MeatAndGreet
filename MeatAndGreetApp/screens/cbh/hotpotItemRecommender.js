@@ -18,7 +18,7 @@ export const recommendItems = async (roomId) => {
     // 1) Initialize OpenAI
     const openai = new OpenAI({
       apiKey: config.OPENAI_API_KEY,
-      dangerouslyAllowBrowser: "true", // If needed in your environment
+      dangerouslyAllowBrowser: true
     });
 
     // 2) Fetch the current room
@@ -91,7 +91,10 @@ try {
     for (let i = 0; i < inputArray.length; i++) {
       const [productName, cookingTime] = inputArray[i]; // Destructure both the product name and time
       // Call your scrape function (async)
+
       const result = await scrape(productName, parseInt(cookingTime, 10));
+
+
       if (result) {
         // Add the time field to the result object
         scrapedResults.push(result); // Push the updated result
@@ -113,6 +116,7 @@ try {
           weight: item.weight,
           imgURL: item.image,
           time: item.time,
+          storeURL: item.link
         },
       };
       existingFood.push(entry);

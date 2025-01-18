@@ -92,6 +92,7 @@ export async function scrape(query, cookingTime) {
         });
       });
     });
+    // Return one result
 
     return scrapedResults[0];
   } catch (error) {
