@@ -20,7 +20,7 @@ export const recommendItems = async (roomId) => {
         console.log(roomId)
         console.log("Generating recommendations for room")
         const openai = new OpenAI({
-            apiKey: "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",
+            apiKey: "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",
             dangerouslyAllowBrowser: "true"
         });
 
