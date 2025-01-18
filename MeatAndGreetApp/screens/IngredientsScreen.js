@@ -6,10 +6,12 @@ import { db } from '../firebaseConfig'; // your Firestore db
 import { recommendItems } from './cbh/hotpotItemRecommender';
 import AddIngredientModal from './ingredientCRUD/AddIngredient';
 import EditIngredientModal from './ingredientCRUD/EditIngredient';
+import { ProgressBar } from 'react-native-paper'; // Import ProgressBar from react-native-paper
 
 const IngredientsScreen = ({ room }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [ingredients, setIngredients] = useState([]);
+  const [loading, setLoading] = useState(false); // State for loading status
   
   // For controlling the Add & Edit modals
   const [showAddModal, setShowAddModal] = useState(false);
@@ -26,18 +28,22 @@ const IngredientsScreen = ({ room }) => {
         const roomData = snapshot.data();
         if (Array.isArray(roomData.food)) {
           const newIngredients = roomData.food.map((itemObj, index) => {
+  
             // itemObj example: { "Broccoli": { price: "1.99", weight: "200 g", imgURL: "..."} }
             const [title, details] = Object.entries(itemObj)[0];
+           
             return {
               id: index.toString(),  // or any unique identifier
               name: title,
               price: details.price || 0,
               weight: details.weight || '',
               imgURL: details.imgURL || '',
+              time: details.time,
               calories: details.calories || 0,
             };
           });
           setIngredients(newIngredients);
+   
         } else {
           setIngredients([]);
         }
@@ -64,32 +70,30 @@ const IngredientsScreen = ({ room }) => {
   // -------------------------------------
   const handleAddIngredient = async (newIngredient) => {
     try {
-      // newIngredient = { name, price, weight, imgURL, calories }
       const roomDocRef = doc(db, 'rooms', room.id);
-      // Convert the existing ingredients array into the "food" format
       const newFoodEntry = {
         [newIngredient.name]: {
           price: newIngredient.price,
           weight: newIngredient.weight,
           imgURL: newIngredient.imgURL,
+          time: newIngredient.time,
           calories: newIngredient.calories,
         },
       };
 
-      // Merge with existing "food" array
       const updatedFood = [
         ...ingredients.map((ing) => ({
           [ing.name]: {
             price: ing.price,
             weight: ing.weight,
             imgURL: ing.imgURL,
+            time: ing.time,
             calories: ing.calories,
           },
         })),
         newFoodEntry,
       ];
 
-      // Update Firestore
       await updateDoc(roomDocRef, { food: updatedFood });
       setShowAddModal(false);
     } catch (error) {
@@ -109,24 +113,23 @@ const IngredientsScreen = ({ room }) => {
     try {
       const roomDocRef = doc(db, 'rooms', room.id);
 
-      // Convert current 'ingredients' to Firestore format
-      // but replace the one being edited
       const updatedFood = ingredients.map((ing) => {
         if (ing.id === updatedIngredient.id) {
           return {
             [updatedIngredient.name]: {
               price: updatedIngredient.price,
               weight: updatedIngredient.weight,
+              time: updatedIngredient.time,
               imgURL: updatedIngredient.imgURL,
               calories: updatedIngredient.calories,
             },
           };
         }
-        // otherwise keep it as is
         return {
           [ing.name]: {
             price: ing.price,
             weight: ing.weight,
+            time: ing.time,
             imgURL: ing.imgURL,
             calories: ing.calories,
           },
@@ -148,7 +151,6 @@ const IngredientsScreen = ({ room }) => {
     try {
       const roomDocRef = doc(db, 'rooms', room.id);
 
-      // Filter out the item we want to delete
       const updatedFood = ingredients
         .filter((ing) => ing.id !== ingredient.id)
         .map((ing) => ({
@@ -156,6 +158,7 @@ const IngredientsScreen = ({ room }) => {
             price: ing.price,
             weight: ing.weight,
             imgURL: ing.imgURL,
+            time: ing.time,
             calories: ing.calories,
           },
         }));
@@ -184,7 +187,6 @@ const IngredientsScreen = ({ room }) => {
             {`Weight: ${item.weight} | $${item.price}`}
           </Text>
         </View>
-        {/* Simple delete button */}
         <Pressable
           style={styles.deleteButton}
           onPress={() => handleDeleteIngredient(item)}
@@ -206,6 +208,11 @@ const IngredientsScreen = ({ room }) => {
         renderItem={renderItem}
       />
 
+      {/* Show loading bar when recommendations are being generated */}
+      {loading && (
+        <ProgressBar indeterminate={true} style={styles.progressBar} />
+      )}
+
       <Button
         title="Add New Ingredient"
         buttonStyle={styles.button}
@@ -216,7 +223,11 @@ const IngredientsScreen = ({ room }) => {
         title="Generate Recommendations"
         buttonStyle={[styles.button, { backgroundColor: '#2196F3' }]}
         onPress={() => {
-          recommendItems(room.id);
+          setLoading(true);  // Set loading to true when recommendations are being generated
+          recommendItems(room.id)
+            .finally(() => {
+              setLoading(false); // Set loading to false once process is complete
+            });
         }}
       />
 
@@ -275,4 +286,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignSelf: 'flex-start',
   },
+  progressBar: {
+    marginVertical: 20,
+    height: 4,
+    backgroundColor: '#f0f0f0',
+  },
 });
+

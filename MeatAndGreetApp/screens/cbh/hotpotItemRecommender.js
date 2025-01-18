@@ -49,8 +49,8 @@ export const recommendItems = async (roomId) => {
           role: "system",
           content:
             "You are to take in a string of user preferences of food and return a Javascript array." +
-            "The array MUST be structured in this way [[item, an emoji of the food item], [item, an emoji of the food item], ...]." +
-            "You are to ONLY RETURN an array object, without any other words or content or formatting whatsoever." +
+            "The array MUST be structured in this way [[item name, in seconds of no less than 5 and no more than 300, of the best boiling time in a hotpot for the food item recommended in this list, be reasonable], [item name, item name, in seconds of no less than 10, of the best boiling time in a hotpot for the food item recommended in this list, be reasonable], ...]." +
+            'An example will be [["Beef Shabu Shabu", "20"], ["Broccoli", "60"]].  IMPORTANT, You are to ONLY RETURN an array object, without any other words or content or formatting whatsoever.' +
             "Phrase the item name similar to common supermarket food items.",
         },
         {
@@ -61,28 +61,43 @@ export const recommendItems = async (roomId) => {
     });
 
     // 5) Parse the OpenAI response as JSON
-    // Example response: '[["Beef Shabu Shabu", "🥩"], ["Broccoli", "🥦"]]'
+    // Example response: '[["Beef Shabu Shabu", "20"], ["Broccoli", "60"]]'
     const content = completion.choices[0].message.content.trim();
-    let inputArray;
-    try {
-      inputArray = JSON.parse(content); // must be a valid JSON array
-    } catch (parseErr) {
-      throw new Error(
-        `OpenAI did not return valid JSON array. Received:\n${content}\nError: ${parseErr}`
-      );
-    }
+    /*[
+  ["pork collar", "120"],
+  ["shabu shabu", "90"],
+  ["enoki mushrooms", "60"],
+  ["cheese tofu", "120"],
+  ["tonkotsu broth", "180"],
+  ["beancurd skin rolls", "90"],
+  ["prawns", "120"]
+] */
 
+// Sanitize the response
+const sanitizedContent = content.replace(/[\n\r`']+/g, ''); // Remove newline characters
+
+let inputArray;
+try {
+  // Try parsing the cleaned-up response
+  inputArray = JSON.parse(sanitizedContent); // must be a valid JSON array
+} catch (parseErr) {
+  throw new Error(
+    `OpenAI did not return valid JSON array. Received:\n${sanitizedContent}\nError: ${parseErr}`
+  );
+}
     // 6) Scrape each recommended item
     // We'll store the scraping results in 'scrapedResults'
     const scrapedResults = [];
     for (let i = 0; i < inputArray.length; i++) {
-      const [productName] = inputArray[i]; // item = [ "Beef Shabu Shabu", "🥩" ]
+      const [productName, cookingTime] = inputArray[i]; // Destructure both the product name and time
       // Call your scrape function (async)
-      const result = await scrape(productName);
+      const result = await scrape(productName, parseInt(cookingTime, 10));
       if (result) {
-        scrapedResults.push(result);
+        // Add the time field to the result object
+        scrapedResults.push(result); // Push the updated result
       }
     }
+    
 
     // 7) Transform your scrapedResults to the desired structure
     // Existing room might have a 'food' array or not, so we read it first
@@ -97,6 +112,7 @@ export const recommendItems = async (roomId) => {
           price: String(item.price),
           weight: item.weight,
           imgURL: item.image,
+          time: item.time,
         },
       };
       existingFood.push(entry);

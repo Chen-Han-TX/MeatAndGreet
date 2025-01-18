@@ -13,35 +13,36 @@ const TimerScreen = ({ room }) => {
     if (!room?.id) return;
 
     // 1) Set up a listener on the room doc
-    const roomRef = doc(db, 'rooms', room.id);
-    const unsubscribe = onSnapshot(roomRef, (snapshot) => {
+    const roomDocRef = doc(db, 'rooms', room.id);
+    const unsubscribe = onSnapshot(roomDocRef, (snapshot) => {
       if (snapshot.exists()) {
         const roomData = snapshot.data();
-        
-        // 2) Transform Firestore data to the structure your Timer needs
-        //    roomData.food is assumed to be an array of objects
         if (Array.isArray(roomData.food)) {
-          const newIngredients = roomData.food.map((item, idx) => {
-            // Each entry is something like { "Broccoli": { price: "1.99", weight: "200 g", imgURL: "..."} }
-            const [title, details] = Object.entries(item)[0];
-
-            // Return the shape expected by IngredientTimer
+          const newIngredients = roomData.food.map((itemObj, index) => {
+  
+            // itemObj example: { "Broccoli": { price: "1.99", weight: "200 g", imgURL: "..."} }
+            const [title, details] = Object.entries(itemObj)[0];
+           
             return {
+              id: index.toString(),  // or any unique identifier
               name: title,
-              time: 20, // default time
-              image: details.imgURL || 'https://via.placeholder.com/80', // fallback
+              price: details.price || 0,
+              weight: details.weight || '',
+              imgURL: details.imgURL || '',
+              time: details.time,
+              calories: details.calories || 0,
             };
           });
-
           setIngredients(newIngredients);
+   
         } else {
-          setIngredients([]); // if no valid food array
+          setIngredients([]);
         }
       } else {
-        // Document does not exist
-        setIngredients([]);
+        setIngredients([]); // Document doesn't exist
       }
     });
+
 
     // 3) Cleanup listener on unmount
     return () => unsubscribe();

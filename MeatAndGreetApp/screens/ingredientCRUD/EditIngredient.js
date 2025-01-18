@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 const EditIngredientModal = ({ ingredient, onClose, onSave }) => {
+  console.log("EditIngredientModal", ingredient)
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [weight, setWeight] = useState('');
   const [imgURL, setImgURL] = useState('');
   const [calories, setCalories] = useState('');
+  const [time, setTime] = useState('');
 
   // Populate the fields from the passed 'ingredient'
   useEffect(() => {
@@ -16,6 +18,7 @@ const EditIngredientModal = ({ ingredient, onClose, onSave }) => {
       setPrice(String(ingredient.price || ''));
       setWeight(ingredient.weight || '');
       setImgURL(ingredient.imgURL || '');
+      setTime(ingredient.time || '');
       setCalories(String(ingredient.calories || ''));
     }
   }, [ingredient]);
@@ -26,6 +29,7 @@ const EditIngredientModal = ({ ingredient, onClose, onSave }) => {
       name,
       price,
       weight,
+      time,
       imgURL,
       calories,
     };
@@ -54,6 +58,13 @@ const EditIngredientModal = ({ ingredient, onClose, onSave }) => {
           placeholder="Weight"
           value={weight}
           onChangeText={setWeight}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Time (s)"
+          value={time}
+          onChangeText={setTime}
+          keyboardType="numeric"
           style={styles.input}
         />
         <TextInput

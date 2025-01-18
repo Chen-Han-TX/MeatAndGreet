@@ -6,6 +6,10 @@ const IngredientTimer = ({ ingredients }) => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [timerInterval, setTimerInterval] = useState(null);
 
+
+  console.log("ingredients", ingredients)
+
+
   const handlePress = (ingredient) => {
     // If there's an active timer, clear it
     if (timerInterval) {
@@ -16,7 +20,7 @@ const IngredientTimer = ({ ingredients }) => {
     setSelectedTimer(ingredient.name);
 
     // Convert time to an integer
-    const timerDuration = parseInt(ingredient.time, 10) || 20; // default 20 if NaN
+    const timerDuration = ingredient.time; 
     setTimeLeft(timerDuration);
 
     // Start a new countdown
@@ -45,13 +49,21 @@ const IngredientTimer = ({ ingredients }) => {
         style={[styles.ingredientCard, isSelected && styles.selectedCard]}
         onPress={() => handlePress(item)}
       >
-        <Image source={{ uri: item.image }} style={styles.ingredientImage} />
+        <Image source={{ uri: item.imgURL }} style={styles.ingredientImage} />
         <Text style={styles.ingredientText}>{item.name}</Text>
-        {isSelected && timeLeft !== null && (
+        {isSelected && timeLeft !== null ? (
           <Text style={styles.timerText}>
             {timeLeft > 0 ? `${timeLeft}s` : 'Done!'}
           </Text>
+        ) : (
+          
+          <Text style={styles.timerText2}>
+            {item.time}s
+          </Text>
+          
         )}
+
+
       </TouchableOpacity>
     );
   };
@@ -98,6 +110,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     color: '#ff6347',
+  },
+  timerText2: {
+    marginTop: 10,
+    fontSize: 14,
+    color: 'black',
   },
 });
 

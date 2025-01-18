@@ -7,6 +7,7 @@ const AddIngredientModal = ({ onClose, onAdd }) => {
   const [price, setPrice] = useState('');
   const [weight, setWeight] = useState('');
   const [imgURL, setImgURL] = useState('');
+  const [time, setTime] = useState('');
   const [calories, setCalories] = useState('');
 
   const handleSubmit = () => {
@@ -16,6 +17,7 @@ const AddIngredientModal = ({ onClose, onAdd }) => {
       weight,
       imgURL,
       calories,
+      time,
     };
     onAdd(newIngredient);
   };
@@ -42,6 +44,13 @@ const AddIngredientModal = ({ onClose, onAdd }) => {
           placeholder="Weight"
           value={weight}
           onChangeText={setWeight}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Time (s)"
+          value={time}
+          onChangeText={setTime}
+          keyboardType="numeric"
           style={styles.input}
         />
         <TextInput
