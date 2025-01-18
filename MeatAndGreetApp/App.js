@@ -1,22 +1,27 @@
-import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+// App.js
+import React, { useState, useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { Icon } from 'react-native-elements';
+import { auth } from './firebaseConfig';
+
 import { v4 as uuidv4 } from 'uuid';
 import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import * as Clipboard from 'expo-clipboard';
 import 'react-native-get-random-values';
 
+
+import LoginSignUp from './screens/LoginSignUp';
 import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
 import SettingsScreen from './screens/SettingsScreen';
-import TimerScreen from './screens/TimerScreen';
-// import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
-import { Icon } from 'react-native-elements';
 
-import { Settings } from 'react-native';
+
+import TimerScreen from './screens/TimerScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -33,45 +38,22 @@ const IngredientsStack = ({ room }) => (
 );
 
 const App = () => {
+  const [user, setUser] = useState(null);
   const [room, setRoom] = useState(null);
+  const [preferencesCompleted, setPreferencesCompleted] = useState(false);
 
-  const startPlanning = async () => {
-    try {
-      const newRoom = {
-        createdAt: new Date(),
-        roomId: uuidv4(),
-        isActive: true, // Mark as active
-      };
-      const docRef = await addDoc(collection(db, 'rooms'), newRoom);
-      const createdRoom = { id: docRef.id, ...newRoom };
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+    });
+    return unsubscribe;
+  }, []);
 
-      setRoom(createdRoom);
-    } catch (error) {
-      console.error('Error creating room:', error);
-    }
-  };
-
-  const leaveRoom = async () => {
-    try {
-      if (room) {
-        const roomDocRef = doc(db, 'rooms', room.id);
-        await updateDoc(roomDocRef, { isActive: false }); // Mark room as inactive
-        setRoom(null);
-        alert('Room marked as inactive.');
-      }
-    } catch (error) {
-      console.error('Error leaving room:', error);
-      alert('Error leaving the room. Please try again.');
-    }
-  };
-
-  const shareRoom = () => {
-    if (room) {
-      const roomId = room.roomId;
-      Clipboard.setStringAsync(roomId);
-      alert('Room ID copied to clipboard!');
-    }
-  };
+  if (!user || !preferencesCompleted) {
+    return (
+      <LoginSignUp onPreferencesSaved={() => setPreferencesCompleted(true)} />
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -93,46 +75,41 @@ const App = () => {
           tabBarInactiveTintColor: 'gray',
         })}
       >
+
         <Tab.Screen name="Home">
           {(props) => (
-            <HomeScreen
-              {...props}
-              room={room}
-              startPlanning={startPlanning}
-              leaveRoom={leaveRoom}
-              shareRoom={shareRoom}
-            />
+            <HomeScreen {...props} room={room} setRoom={setRoom} />
           )}
         </Tab.Screen>
 
-        <Tab.Screen
-          name="Ingredients"
-          listeners={({ navigation }) => ({
-            tabPress: (e) => {
-              if (!room) {
-                e.preventDefault(); // Prevent navigation if room doesn't exist
-                alert('Please create a room first!');
-              }
-            },
-          })}
-          options={{
-            tabBarStyle: room ? {} : { display: 'none' }, // Hide tab when no room exists
-          }}
-        >
-         {(props) => <IngredientsStack {...props} room={room} />}
-        </Tab.Screen>
 
-        <Tab.Screen name="Cart">
-          {(props) => <CartScreen {...props} />}
-        </Tab.Screen>
+        {/* Conditional Tab Rendering */}
+        {room && (
+          <Tab.Screen
+            name="Ingredients"
+            listeners={{
+              tabPress: (e) => {
+                if (!room) {
+                  e.preventDefault();
+                  Alert.alert('Room Required', 'Please create a room first!');
+                }
+              },
+            }}
+          >
+            {(props) => <IngredientsScreen {...props} room={room} />}
+          </Tab.Screen>
+        )}
 
-        <Tab.Screen name="Setting">
-          {(props) => <SettingsScreen {...props} />}
-        </Tab.Screen>
-        <Tab.Screen name="Timer" component={TimerScreen} />
+        <Tab.Screen name="Cart" component={CartScreen} />
+        <Tab.Screen name="Setting" component={SettingsScreen} />
+
       </Tab.Navigator>
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  // Add styles here if needed
+});
 
 export default App;
