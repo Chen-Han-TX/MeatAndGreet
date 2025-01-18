@@ -22,6 +22,10 @@ import SettingsScreen from './screens/SettingsScreen';
 
 
 import TimerScreen from './screens/TimerScreen';
+// import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
+import { Icon } from 'react-native-elements';
+
+import { Settings } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -103,6 +107,11 @@ const App = () => {
         <Tab.Screen name="Cart" component={CartScreen} />
         <Tab.Screen name="Setting" component={SettingsScreen} />
 
+        <Tab.Screen name="Setting">
+          {(props) => <SettingsScreen {...props} />}
+        </Tab.Screen>
+        <Tab.Screen name="Timer" component={TimerScreen} />
+        <Tab.Screen name="fairpriceTest" component={FairpriceScraper} />
       </Tab.Navigator>
     </NavigationContainer>
   );
