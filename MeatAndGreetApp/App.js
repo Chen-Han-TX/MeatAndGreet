@@ -12,7 +12,8 @@ import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
 import SettingsScreen from './screens/SettingsScreen';
-import TimerScreen from './screens/TimerScreen'
+import TimerScreen from './screens/TimerScreen';
+// import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
 import { Icon } from 'react-native-elements';
 
 import { Settings } from 'react-native';
@@ -126,7 +127,7 @@ const App = () => {
         </Tab.Screen>
 
         <Tab.Screen name="Setting">
-          {(props) => <Settings {...props} />}
+          {(props) => <SettingsScreen {...props} />}
         </Tab.Screen>
         <Tab.Screen name="Timer" component={TimerScreen} />
       </Tab.Navigator>
