@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "15482562834",
+    "project_id": "meatandgreet-9fa59",
+    "storage_bucket": "meatandgreet-9fa59.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:15482562834:android:46fad70247a9bca7e16bcb",
+        "android_client_info": {
+          "package_name": "com.example.meatandgreet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "15482562834-uo6dtqj33o4ivp7ubklphrpsqcdmg3ev.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5IlKHh7aQF7mOqwdHjN7mpPP1aeGoB3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "15482562834-uo6dtqj33o4ivp7ubklphrpsqcdmg3ev.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
