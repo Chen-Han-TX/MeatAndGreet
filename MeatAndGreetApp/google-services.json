@@ -12,7 +12,12 @@
           "package_name": "com.example.meatandgreet"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "15482562834-uo6dtqj33o4ivp7ubklphrpsqcdmg3ev.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD5IlKHh7aQF7mOqwdHjN7mpPP1aeGoB3k"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "15482562834-uo6dtqj33o4ivp7ubklphrpsqcdmg3ev.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

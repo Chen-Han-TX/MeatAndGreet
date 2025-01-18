@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, Pressable } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import { recommendItems } from './cbh/hotpotItemsRecommender';
+
 
 const mockIngredients = [
   { id: '1', name: 'Beef Slices', calories: 200, price: 5.0 },
@@ -9,7 +10,7 @@ const mockIngredients = [
   { id: '3', name: 'Everbest Ring Roll', calories: 100, price: 5.05 },
 ];
 
-const IngredientsScreen = ({ navigation }) => {
+const IngredientsScreen = ({ room }) => {
   const [selectedItems, setSelectedItems] = useState([]);
 
   const toggleSelection = (item) => {
@@ -20,30 +21,30 @@ const IngredientsScreen = ({ navigation }) => {
     );
   };
 
+  const isSelected = (item) => selectedItems.includes(item);
+
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Ingredients Selection</Text>
+      <Text style={styles.subtitle}>Room ID: {room?.roomId}</Text>
       <FlatList
         data={mockIngredients}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ListItem
-            bottomDivider
-            onPress={() => toggleSelection(item)}
-            containerStyle={[
-              selectedItems.includes(item) && styles.selected,
+          <Pressable
+            style={[
+              styles.listItem,
+              isSelected(item) && styles.selected,
             ]}
+            onPress={() => toggleSelection(item)}
           >
-            <ListItem.Content>
-              <ListItem.Title>{item.name}</ListItem.Title>
-              <ListItem.Subtitle>
+            <View>
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemDetails}>
                 {`Calories: ${item.calories} kcal | $${item.price}`}
-              </ListItem.Subtitle>
-            </ListItem.Content>
-            <ListItem.CheckBox
-              checked={selectedItems.includes(item)}
-              onPress={() => toggleSelection(item)}
-            />
-          </ListItem>
+              </Text>
+            </View>
+          </Pressable>
         )}
       />
       <Button
@@ -56,15 +57,26 @@ const IngredientsScreen = ({ navigation }) => {
         buttonStyle={styles.button}
         onPress={() => navigation.navigate('Cart', { selectedItems })}
       />
-      
-      
+      <Button title="Confirm Selection" buttonStyle={styles.button} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  selected: { backgroundColor: '#FFEBEE' },
+  container: { flex: 1, padding: 20 },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
+  subtitle: { fontSize: 16, color: 'gray', marginBottom: 10 },
+  listItem: {
+    padding: 15,
+    marginVertical: 8,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  selected: { backgroundColor: '#FFEBEE', borderColor: '#FF5722' },
+  itemName: { fontSize: 18, fontWeight: 'bold' },
+  itemDetails: { fontSize: 14, color: 'gray' },
   button: { backgroundColor: '#4CAF50', margin: 20 },
 });
 
