@@ -1,47 +1,24 @@
-// App.js
 import React, { useState, useEffect } from 'react';
-import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Icon } from 'react-native-elements';
 import { auth } from './firebaseConfig';
-
-import { v4 as uuidv4 } from 'uuid';
-import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
-import { db } from './firebaseConfig';
-import * as Clipboard from 'expo-clipboard';
 import 'react-native-get-random-values';
 
-
-import LoginSignUp from './screens/LoginSignUp';
+import Login from './screens/Login';
+import SignUp from './screens/SignUp';
 import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
 import SettingsScreen from './screens/SettingsScreen';
 
-
-import TimerScreen from './screens/TimerScreen';
-
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
-
-const IngredientsStack = ({ room }) => (
-  <Stack.Navigator>
-    <Stack.Screen
-      name="IngredientsScreen"
-      options={{ headerShown: false }}
-    >
-      {(props) => <IngredientsScreen {...props} room={room} />}
-    </Stack.Screen>
-  </Stack.Navigator>
-);
+const AuthStack = createStackNavigator();
 
 const App = () => {
-    // User and room are Firebase objects
   const [user, setUser] = useState(null);
   const [room, setRoom] = useState(null);
-  const [preferencesCompleted, setPreferencesCompleted] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -50,12 +27,19 @@ const App = () => {
     return unsubscribe;
   }, []);
 
+  // Authentication flow
   if (!user) {
     return (
-      <LoginSignUp onPreferencesSaved={() => setPreferencesCompleted(true)} />
+      <NavigationContainer>
+        <AuthStack.Navigator initialRouteName="Login">
+          <AuthStack.Screen name="Login" component={Login} />
+          <AuthStack.Screen name="SignUp" component={SignUp} />
+        </AuthStack.Navigator>
+      </NavigationContainer>
     );
   }
 
+  // Main application flow
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -66,7 +50,6 @@ const App = () => {
               Ingredients: 'list',
               Cart: 'shopping-cart',
               Setting: 'settings',
-                Timer: 'schedule',
             };
             return (
               <Icon name={icons[route.name]} type="material" color={color} size={size} />
@@ -76,13 +59,11 @@ const App = () => {
           tabBarInactiveTintColor: 'gray',
         })}
       >
-
         <Tab.Screen name="Home">
           {(props) => (
             <HomeScreen {...props} room={room} user={user} setRoom={setRoom} />
           )}
         </Tab.Screen>
-
 
         {/* Conditional Tab Rendering */}
         {room && (
@@ -103,14 +84,9 @@ const App = () => {
 
         <Tab.Screen name="Cart" component={CartScreen} />
         <Tab.Screen name="Setting" component={SettingsScreen} />
-
       </Tab.Navigator>
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  // Add styles here if needed
-});
 
 export default App;
