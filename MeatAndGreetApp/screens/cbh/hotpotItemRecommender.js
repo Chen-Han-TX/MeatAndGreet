@@ -21,6 +21,7 @@ export const recommendItems = async (roomId) => {
         + "Cheese tofu and tonkotsu broth is a must have for me"
         + "I like eating beancurd skin rolls and prawns"
     try {
+        console.log("Generating recommendations for room")
         const openai = new OpenAI({
             apiKey: "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",
             dangerouslyAllowBrowser: "true"

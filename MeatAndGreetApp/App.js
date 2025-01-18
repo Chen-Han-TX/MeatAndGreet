@@ -49,7 +49,7 @@ const App = () => {
     return unsubscribe;
   }, []);
 
-  if (!user || !preferencesCompleted) {
+  if (!user) {
     return (
       <LoginSignUp onPreferencesSaved={() => setPreferencesCompleted(true)} />
     );
