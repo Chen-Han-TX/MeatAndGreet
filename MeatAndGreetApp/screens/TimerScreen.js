@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native';
-import IngredientTimer from './ryantoh/IngredientTimer';
+import IngredientTimer from './ryantoh/Timer';
 
 const ingredients = [
   { name: 'Broccoli', time: 60, image: 'https://via.placeholder.com/80' },
