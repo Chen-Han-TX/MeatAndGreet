@@ -1,36 +1,40 @@
-/*
-Input: dictionary with ingredient name and time required
-Output: vertical scroll with 2 ingredients per row and image of food
-
-Specifications:
-
-When the food is pressed, change to timer
-When timer reaches 0, flash green and display "done"
-
-*/
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
+import { Text, FlatList, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 
-const Timer = ({ ingredients }) => {
+const IngredientTimer = ({ ingredients }) => {
   const [selectedTimer, setSelectedTimer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [timerInterval, setTimerInterval] = useState(null);
 
   const handlePress = (ingredient) => {
-    setSelectedTimer(ingredient.name);
-    setTimeLeft(ingredient.time);
+    // If there's an active timer, clear it
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
 
-    // Countdown timer logic
-    const interval = setInterval(() => {
+    // Set which ingredient is selected
+    setSelectedTimer(ingredient.name);
+
+    // Convert time to an integer
+    const timerDuration = parseInt(ingredient.time, 10) || 20; // default 20 if NaN
+    setTimeLeft(timerDuration);
+
+    // Start a new countdown
+    const intervalId = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
-          clearInterval(interval);
+          clearInterval(intervalId);
           setTimeLeft(null);
           setSelectedTimer(null);
           Alert.alert(`${ingredient.name} is done!`);
+          return 0; 
         }
         return prevTime - 1;
       });
     }, 1000);
+
+    // Save interval so we can clear it if user presses another ingredient
+    setTimerInterval(intervalId);
   };
 
   const renderIngredient = ({ item }) => {
@@ -43,7 +47,7 @@ const Timer = ({ ingredients }) => {
       >
         <Image source={{ uri: item.image }} style={styles.ingredientImage} />
         <Text style={styles.ingredientText}>{item.name}</Text>
-        {isSelected && (
+        {isSelected && timeLeft !== null && (
           <Text style={styles.timerText}>
             {timeLeft > 0 ? `${timeLeft}s` : 'Done!'}
           </Text>
@@ -97,4 +101,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Timer;
+export default IngredientTimer;
