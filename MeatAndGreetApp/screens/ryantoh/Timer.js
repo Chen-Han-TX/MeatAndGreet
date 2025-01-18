@@ -1,23 +1,43 @@
-/*
-Input: dictionary with ingredient name and time required
-Output: vertical scroll with 2 ingredients per row and image of food
-
-Specifications:
-
-When the food is pressed, change to timer
-When timer reaches 0, flash green and display "done"
-
-*/
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
 
-const Timer = ({ ingredients }) => {
+const Timer = ({ roomId }) => {
+  const [ingredients, setIngredients] = useState([]);
   const [selectedTimer, setSelectedTimer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
 
+  // Fetch ingredient data from Firestore
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      try {
+        const foodListRef = doc(db, `rooms/room_id`); 
+       // const foodListRef = doc(db, `rooms/${roomId}`); // Use dynamic roomId
+        const foodListDoc = await getDoc(foodListRef);
+
+        if (foodListDoc.exists()) {
+          const foodData = foodListDoc.data().foodList;
+          const formattedData = Object.entries(foodData).map(([name, details]) => ({
+            name,
+            ...details,
+          }));
+          setIngredients(formattedData);
+        } else {
+          console.log('No food list found!');
+        }
+      } catch (error) {
+        console.error('Error fetching food list:', error);
+      }
+    };
+
+    fetchIngredients();
+  }, [roomId]);
+
   const handlePress = (ingredient) => {
     setSelectedTimer(ingredient.name);
-    setTimeLeft(ingredient.time);
+    const timerDuration = parseInt(ingredient.time, 10); // Ensure time is a number
+    setTimeLeft(timerDuration);
 
     // Countdown timer logic
     const interval = setInterval(() => {
@@ -41,7 +61,7 @@ const Timer = ({ ingredients }) => {
         style={[styles.ingredientCard, isSelected && styles.selectedCard]}
         onPress={() => handlePress(item)}
       >
-        <Image source={{ uri: item.image }} style={styles.ingredientImage} />
+        <Image source={{ uri: item.imgURL }} style={styles.ingredientImage} />
         <Text style={styles.ingredientText}>{item.name}</Text>
         {isSelected && (
           <Text style={styles.timerText}>
