@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Icon } from 'react-native-elements';
 import { v4 as uuidv4 } from 'uuid';
 import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
@@ -12,6 +11,11 @@ import 'react-native-get-random-values';
 import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import TimerScreen from './screens/TimerScreen';
+// import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
+import { Icon } from 'react-native-elements';
+
 import { Settings } from 'react-native';
 
 const Tab = createBottomTabNavigator();
@@ -78,6 +82,7 @@ const App = () => {
               Ingredients: 'list',
               Cart: 'shopping-cart',
               Setting: 'settings',
+                Timer: 'schedule',
             };
             return (
               <Icon name={icons[route.name]} type="material" color={color} size={size} />
@@ -113,7 +118,7 @@ const App = () => {
             tabBarStyle: room ? {} : { display: 'none' }, // Hide tab when no room exists
           }}
         >
-          {(props) => <IngredientsStack {...props} room={room} />}
+         {(props) => <IngredientsStack {...props} room={room} />}
         </Tab.Screen>
 
         <Tab.Screen name="Cart">
@@ -121,8 +126,9 @@ const App = () => {
         </Tab.Screen>
 
         <Tab.Screen name="Setting">
-          {(props) => <Settings {...props} />}
+          {(props) => <SettingsScreen {...props} />}
         </Tab.Screen>
+        <Tab.Screen name="Timer" component={TimerScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, StyleSheet, Pressable } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import { recommendItems } from './cbh/hotpotItemsRecommender';
-
+import { FairpriceScraper } from './ryantoh/FairpriceScraper';
 
 const mockIngredients = [
   { id: '1', name: 'Beef Slices', calories: 200, price: 5.0 },
@@ -57,6 +57,7 @@ const IngredientsScreen = ({ room }) => {
         buttonStyle={styles.button}
         onPress={() => navigation.navigate('Cart', { selectedItems })}
       />
+      <FairpriceScraper />
       <Button title="Confirm Selection" buttonStyle={styles.button} />
     </View>
   );
