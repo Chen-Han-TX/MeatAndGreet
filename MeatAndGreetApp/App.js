@@ -13,8 +13,7 @@ import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import TimerScreen from './screens/TimerScreen';
-// import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
-import { Icon } from 'react-native-elements';
+import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
 
 import { Settings } from 'react-native';
 import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
@@ -123,10 +122,24 @@ const App = () => {
          {(props) => <IngredientsStack {...props} room={room} />}
         </Tab.Screen>
 
-        <Tab.Screen name="Cart">
-          {(props) => <CartScreen {...props} />}
-        </Tab.Screen>
+        {/* Conditional Tab Rendering */}
+        {room && (
+          <Tab.Screen
+            name="Ingredients"
+            listeners={{
+              tabPress: (e) => {
+                if (!room) {
+                  e.preventDefault();
+                  Alert.alert('Room Required', 'Please create a room first!');
+                }
+              },
+            }}
+          >
+            {(props) => <IngredientsScreen {...props} room={room} />}
+          </Tab.Screen>
+        )}
 
+        <Tab.Screen name="Cart" component={CartScreen} />
         <Tab.Screen name="Setting">
           {(props) => <SettingsScreen {...props} />}
         </Tab.Screen>
