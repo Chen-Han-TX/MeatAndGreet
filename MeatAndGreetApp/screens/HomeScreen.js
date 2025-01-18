@@ -255,7 +255,7 @@ const HomeScreen = ({ room, setRoom, user }) => {
               accessibilityLabel="Create a new room to start planning"
             />
             <Button
-              title="Join Room"
+              title="Join Room via Room Code"
               buttonStyle={styles.joinButton}
               onPress={() => setModalVisible(true)}
               accessibilityLabel="Join an existing room"

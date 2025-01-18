@@ -36,7 +36,7 @@ export const recommendItems = async (roomId) => {
       const memberSnapshot = await getDoc(docRef);
       if (memberSnapshot.exists()) {
         const memberData = memberSnapshot.data();
-        groupPreferences += (memberData.preferences || "") + " ";
+        groupPreferences += "one person likes " + (memberData.preferences || "") + ", ";
       }
     }
     console.log("Aggregated group preferences:", groupPreferences);
@@ -48,7 +48,7 @@ export const recommendItems = async (roomId) => {
         {
           role: "system",
           content:
-            "You are to take in a string of user preferences of food and return a Javascript array." +
+            "You are to take in a string of different user preferences of food and return a Javascript array." +
             "The array MUST be structured in this way [[item, an emoji of the food item], [item, an emoji of the food item], ...]." +
             "You are to ONLY RETURN an array object, without any other words or content or formatting whatsoever." +
             "Phrase the item name similar to common supermarket food items.",

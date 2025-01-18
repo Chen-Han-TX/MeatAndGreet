@@ -7,13 +7,16 @@ import { recommendItems } from './cbh/hotpotItemRecommender';
 import AddIngredientModal from './ingredientCRUD/AddIngredient';
 import EditIngredientModal from './ingredientCRUD/EditIngredient';
 import Clipboard from '@react-native-clipboard/clipboard';
+import ImFeelingLuckyModal from "./ingredientCRUD/ImFeelingLucky";
+import { recommendItem } from "./cbh/luckyItemRecommender";
 
 const IngredientsScreen = ({ room }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [ingredients, setIngredients] = useState([]);
   
-  // For controlling the Add & Edit modals
+  // For controlling the Add & Edit & ImFeelingLucky modals
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showImFeelingLuckyModal, setShowImFeelingLuckyModal] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [ingredientToEdit, setIngredientToEdit] = useState(null);
 
@@ -33,7 +36,7 @@ const IngredientsScreen = ({ room }) => {
               id: index.toString(),  // or any unique identifier
               name: title,
               price: details.price || 0,
-              weight: details.weight || '',
+              weight: details.weight || 'No weight given',
               imgURL: details.imgURL || '',
               calories: details.calories || 0,
               storeURL: details.storeURL || '',
@@ -100,6 +103,11 @@ const IngredientsScreen = ({ room }) => {
       console.error('Error adding ingredient:', error);
     }
   };
+
+  const handleLuckyIngredient = async (ingredient) => {
+    setShowImFeelingLuckyModal(false);
+    await recommendItem(room.id, ingredient)
+  }
 
   // -------------------------------------
   // U P D A T E
@@ -206,8 +214,8 @@ const IngredientsScreen = ({ room }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Ingredient Selection</Text>
-      <Text style={styles.subtitle}>Tip: You may delete unwanted recommendations or generate recommendations repeatedly!</Text>
-      <Text style={styles.subtitle}>Tip: You may also copy the link to the product to your clipboard by clicking on the item!</Text>
+      <Text style={styles.subtitle}>Tip: You may delete unwanted recommendations.</Text>
+      <Text style={styles.subtitle}>Tip: You may also copy product link to your clipboard by clicking on the item!</Text>
       <FlatList
         data={ingredients}
         keyExtractor={(item) => item.id}
@@ -221,7 +229,13 @@ const IngredientsScreen = ({ room }) => {
       />
 
       <Button
-        title="Generate Recommendations"
+          title="Im Feeling Lucky!"
+          buttonStyle={styles.button}
+          onPress={() => setShowImFeelingLuckyModal(true)}
+      />
+
+      <Button
+        title="Generate Group Recommendations"
         buttonStyle={[styles.button, { backgroundColor: '#2196F3' }]}
         onPress={() => {
           recommendItems(room.id);
@@ -238,6 +252,18 @@ const IngredientsScreen = ({ room }) => {
         <AddIngredientModal
           onClose={() => setShowAddModal(false)}
           onAdd={handleAddIngredient}
+        />
+      </Modal>
+
+      <Modal
+          visible={showImFeelingLuckyModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowImFeelingLuckyModal(false)}
+      >
+        <ImFeelingLuckyModal
+            onClose={() => setShowImFeelingLuckyModal(false)}
+            onSubmit={handleLuckyIngredient}
         />
       </Modal>
 

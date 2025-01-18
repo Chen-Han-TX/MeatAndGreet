@@ -69,16 +69,23 @@ export async function scrape(query) {
         if (priceList.length === 0) return;
 
         // Check for measurement text (e.g., "200g", "1kg", "500ml", etc.)
-        const units = ['kg','KG','g','G','ml','ML','l','L'];
-        let weightString = '';
+        // Added keyword 'per' as some items are xxx per pack, xxx per box
+        const units = ['kg', 'KG', 'g', 'G', 'ml', 'ML', 'l', 'L', 'per'];
+        let quantityString = '';
         spanList.each((_, span) => {
           const text = $(span).text().trim();
-          const isLikelyUnit = units.some((unit) => text.includes(unit));
+
+          // Check if the text contains any unit and does not include "halal" (case-insensitive)
+          const isLikelyUnit =
+              units.some((unit) => text.includes(unit)) &&
+              !/halal/i.test(text); // Exclude any text containing "halal"
+
           // If it's short enough to be a typical product weight string, store it
           if (isLikelyUnit && text.length <= 15) {
-            weightString = text;
+            quantityString = text;
           }
         });
+
 
         // Push into results array
         scrapedResults.push({
@@ -87,7 +94,7 @@ export async function scrape(query) {
           link: fullLink,
           supermarket: 'ntuc',
           image: imageUrl,
-          weight: weightString, // <--- store weight here as a string
+          weight: quantityString, // <--- store weight here as a string
         });
       });
     });
