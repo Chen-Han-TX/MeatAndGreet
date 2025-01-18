@@ -1,7 +1,8 @@
 // App.js
 import React, { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import { auth } from './firebaseConfig';
@@ -13,10 +14,23 @@ import CartScreen from './screens/CartScreen';
 import SettingsScreen from './screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+const IngredientsStack = ({ room }) => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="IngredientsScreen"
+      options={{ headerShown: false }}
+    >
+      {(props) => <IngredientsScreen {...props} room={room} />}
+    </Stack.Screen>
+  </Stack.Navigator>
+);
 
 const App = () => {
   const [user, setUser] = useState(null);
-  const [room, setRoom] = useState(null); // Tracks if a room is created
+  const [room, setRoom] = useState(null);
+  const [preferencesCompleted, setPreferencesCompleted] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -25,9 +39,11 @@ const App = () => {
     return unsubscribe;
   }, []);
 
-  if (!user) {
-    return <LoginSignUp />;
+  if (!user || !preferencesCompleted) {
+    console.log('User:', user, 'Preferences Completed:', preferencesCompleted);
+    return <LoginSignUp onPreferencesSaved={() => setPreferencesCompleted(true)} />;
   }
+  
 
   return (
     <NavigationContainer>
@@ -54,6 +70,7 @@ const App = () => {
           )}
         </Tab.Screen>
 
+
         {/* Conditional Tab Rendering */}
         {room && (
           <Tab.Screen
@@ -71,6 +88,7 @@ const App = () => {
           </Tab.Screen>
         )}
 
+  
         <Tab.Screen name="Cart" component={CartScreen} />
         <Tab.Screen name="Setting" component={SettingsScreen} />
       </Tab.Navigator>

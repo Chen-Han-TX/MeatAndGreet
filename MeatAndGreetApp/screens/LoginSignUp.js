@@ -35,22 +35,25 @@ const LoginSignUp = ({ onPreferencesSaved }) => {
       Alert.alert('Error', 'Password must be at least 6 characters long.');
       return;
     }
-
+  
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const { uid } = userCredential.user;
-
-      // Save user state and create Firestore document
-      setUser({ uid, email });
+  
+      setUser({ uid, email }); // Set user state
+      console.log('User signed up:', { uid, email });
+  
+      setModalVisible(true); // Show modal
       await setDoc(doc(db, 'users', uid), { email });
+  
 
-      // Show modal to collect preferences
-      setModalVisible(true);
+      console.log('Modal visibility set to true');
     } catch (error) {
       console.error('Sign-up error:', error.message);
       Alert.alert('Error', error.message || 'An error occurred during sign-up. Please try again.');
     }
   };
+  
 
   // Function to handle user login
   const handleLogin = async () => {
@@ -184,3 +187,4 @@ const styles = StyleSheet.create({
 });
 
 export default LoginSignUp;
+
