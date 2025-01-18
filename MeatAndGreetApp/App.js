@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Icon } from 'react-native-elements';
 import { v4 as uuidv4 } from 'uuid';
 import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
@@ -119,7 +118,7 @@ const App = () => {
             tabBarStyle: room ? {} : { display: 'none' }, // Hide tab when no room exists
           }}
         >
-          {(props) => <IngredientsStack {...props} room={room} />}
+         {(props) => <IngredientsStack {...props} room={room} />}
         </Tab.Screen>
 
         <Tab.Screen name="Cart">
@@ -129,7 +128,7 @@ const App = () => {
         <Tab.Screen name="Setting">
           {(props) => <Settings {...props} />}
         </Tab.Screen>
-          <Tab.Screen name="Timer" component={TimerScreen} />
+        <Tab.Screen name="Timer" component={TimerScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

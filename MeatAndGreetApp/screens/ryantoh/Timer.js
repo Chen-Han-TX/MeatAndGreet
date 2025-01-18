@@ -11,7 +11,7 @@ When timer reaches 0, flash green and display "done"
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 
-const IngredientTimer = ({ ingredients }) => {
+const Timer = ({ ingredients }) => {
   const [selectedTimer, setSelectedTimer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
 
@@ -97,4 +97,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default IngredientTimer;
+export default Timer;
