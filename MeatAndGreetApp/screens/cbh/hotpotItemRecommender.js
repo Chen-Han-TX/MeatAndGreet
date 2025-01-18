@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { doc, updateDoc } from "firebase/firestore";
 import {db} from "../../firebaseConfig";
-import {getDoc} from "@react-native-firebase/firestore";
+import { getDoc } from "firebase/firestore";
 
 /**
  * Asynchronously recommends food items based on user preferences.
