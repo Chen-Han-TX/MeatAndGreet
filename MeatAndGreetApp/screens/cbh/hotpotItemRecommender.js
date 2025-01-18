@@ -17,24 +17,23 @@ import { getDoc } from "firebase/firestore";
  */
 export const recommendItems = async (roomId) => {
     try {
-        console.log("Generating recommendations for room")
         console.log(roomId)
+        console.log("Generating recommendations for room")
         const openai = new OpenAI({
-            apiKey: "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",
+            apiKey: "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",
             dangerouslyAllowBrowser: "true"
         });
 
         let groupPreferences = ""
         const roomDocRef = doc(db, "rooms", roomId);
         const room = await getDoc(roomDocRef);
-        console.log(room)
-
-        for (const memberId of room.members) {
+        for (const memberId of room.data().members) {
             const docRef = doc(db, "users", memberId);
             const member = await getDoc(docRef)
-            groupPreferences += member.preferences + " "
+            groupPreferences += member.data().preferences + " "
         }
 
+        console.log(groupPreferences)
         const completion = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
@@ -52,7 +51,7 @@ export const recommendItems = async (roomId) => {
 
         console.log(completion.choices[0].message.content)
     } catch (error) {
-
+        console.error(error);
     }
 }
 

@@ -51,7 +51,7 @@ const IngredientsScreen = ({ room }) => {
         <Button title="Generate Recommendations" buttonStyle={styles.button} onPress={() =>
         {
             console.log(room);
-            recommendItems(room.roomId)
+            recommendItems(room.id)
         }}
         />
         <Button title="Confirm Selection" buttonStyle={styles.button} />
