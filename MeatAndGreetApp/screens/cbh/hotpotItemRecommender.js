@@ -20,7 +20,7 @@ export const recommendItems = async (roomId) => {
         console.log(roomId)
         console.log("Generating recommendations for room")
         const openai = new OpenAI({
-            apiKey: "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",
+            apiKey: "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",
             dangerouslyAllowBrowser: "true"
         });
 
@@ -41,7 +41,8 @@ export const recommendItems = async (roomId) => {
                     role: "developer",
                     content: "You are to take in a string of user preferences of food and return a Javascript array." +
                         "The array MUST be structured in this way [[item, an emoji of the food item], [item, an emoji of the food item], ...]" +
-                        "You are to ONLY RETURN an array object, without any other words or content whatsoever." },
+                        "You are to ONLY RETURN an array object, without any other words or content or formatting whatsoever." +
+                        "Note, you are to phrase the item name such that it is similar to common supermarket food items."},
                 {
                     role: "user",
                     content: groupPreferences,
