@@ -6,6 +6,7 @@ import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
 import CartScreen from './screens/CartScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import TimerScreen from './screens/TimerScreen'
 import { Icon } from 'react-native-elements';
 
 
@@ -30,6 +31,7 @@ const App = () => {
                 Ingredients: 'list',
                 Cart: 'shopping-cart',
                 Settings: 'settings',
+                Timer: 'schedule',
               };
               return (
                 <Icon name={icons[route.name]} type="material" color={color} size={size} />
@@ -43,6 +45,7 @@ const App = () => {
           <Tab.Screen name="Ingredients" component={IngredientsScreen} />
           <Tab.Screen name="Cart" component={CartScreen} />
           <Tab.Screen name="Settings" component={SettingsScreen} />
+          <Tab.Screen name="Timer" component={TimerScreen} />
         </Tab.Navigator>
       </NavigationContainer>
     </ThemeProvider>
