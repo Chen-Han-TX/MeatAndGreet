@@ -46,6 +46,10 @@ const HomeScreen = ({ room, setRoom, user }) => {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
         room: newRoom.roomId,
+        preferences: "I like eating pork collar and shabu shabu"
+            + "I like enoki mushrooms and cheese tofu"
+            + "Cheese tofu and tonkotsu broth is a must have for me"
+            + "I like eating beancurd skin rolls and prawns"
       })
 
       showAlert('Room Created', `Room ID: ${newRoom.roomId}`);

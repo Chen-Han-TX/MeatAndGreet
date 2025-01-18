@@ -16,12 +16,9 @@ import {getDoc} from "@react-native-firebase/firestore";
  * successfully, or logs an error in case of failure.
  */
 export const recommendItems = async (roomId) => {
-    const sampleGroupPreferences = "I like eating pork collar and shabu shabu"
-        + "I like enoki mushrooms and cheese tofu"
-        + "Cheese tofu and tonkotsu broth is a must have for me"
-        + "I like eating beancurd skin rolls and prawns"
     try {
         console.log("Generating recommendations for room")
+        console.log(roomId)
         const openai = new OpenAI({
             apiKey: "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",
             dangerouslyAllowBrowser: "true"
@@ -30,11 +27,12 @@ export const recommendItems = async (roomId) => {
         let groupPreferences = ""
         const roomDocRef = doc(db, "rooms", roomId);
         const room = await getDoc(roomDocRef);
+        console.log(room)
 
         for (const memberId of room.members) {
             const docRef = doc(db, "users", memberId);
             const member = await getDoc(docRef)
-            groupPreferences += member.preferences
+            groupPreferences += member.preferences + " "
         }
 
         const completion = await openai.chat.completions.create({
