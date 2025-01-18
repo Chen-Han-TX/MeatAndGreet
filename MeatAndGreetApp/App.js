@@ -40,10 +40,10 @@ const App = () => {
   }, []);
 
   if (!user || !preferencesCompleted) {
-    console.log('User:', user, 'Preferences Completed:', preferencesCompleted);
-    return <LoginSignUp onPreferencesSaved={() => setPreferencesCompleted(true)} />;
+    return (
+      <LoginSignUp onPreferencesSaved={() => setPreferencesCompleted(true)} />
+    );
   }
-  
 
   return (
     <NavigationContainer>
@@ -64,12 +64,12 @@ const App = () => {
           tabBarInactiveTintColor: 'gray',
         })}
       >
+
         <Tab.Screen name="Home">
           {(props) => (
             <HomeScreen {...props} room={room} setRoom={setRoom} />
           )}
         </Tab.Screen>
-
 
         {/* Conditional Tab Rendering */}
         {room && (
@@ -88,12 +88,15 @@ const App = () => {
           </Tab.Screen>
         )}
 
-  
         <Tab.Screen name="Cart" component={CartScreen} />
         <Tab.Screen name="Setting" component={SettingsScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  // Add styles here if needed
+});
 
 export default App;
