@@ -1,7 +1,8 @@
 {
   "expo": {
+    "plugins": ["@react-native-google-signin/google-signin"],
     "name": "MeatAndGreetApp",
-    "slug": "MeatAndGreetApp",
+    "slug": "meatandgreet",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,6 +17,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.example.meatandgreet",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -23,6 +26,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a93fe315-ed13-4635-9d35-9a4227527541"
+      }
+    },
+    "owner": "flyingdonkey"
   }
 }
