@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, FlatList, StyleSheet, Text, Pressable } from 'react-native';
 import { Button } from 'react-native-elements';
-import { FairpriceScraper } from './ryantoh/FairpriceScraper';
 
 const mockIngredients = [
   { id: '1', name: 'Beef Slices', calories: 200, price: 5.0 },
@@ -46,7 +45,6 @@ const IngredientsScreen = ({ room }) => {
           </Pressable>
         )}
       />
-      <FairpriceScraper />
       <Button title="Confirm Selection" buttonStyle={styles.button} />
     </View>
   );

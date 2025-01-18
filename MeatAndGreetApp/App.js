@@ -17,6 +17,7 @@ import TimerScreen from './screens/TimerScreen';
 import { Icon } from 'react-native-elements';
 
 import { Settings } from 'react-native';
+import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -130,6 +131,7 @@ const App = () => {
           {(props) => <SettingsScreen {...props} />}
         </Tab.Screen>
         <Tab.Screen name="Timer" component={TimerScreen} />
+        <Tab.Screen name="fairpriceTest" component={FairpriceScraper} />
       </Tab.Navigator>
     </NavigationContainer>
   );
