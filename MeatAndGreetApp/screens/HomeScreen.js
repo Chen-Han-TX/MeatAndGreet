@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TextInput, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
-import { collection, addDoc, updateDoc, getDoc, doc } from 'firebase/firestore';
+import {collection, addDoc, updateDoc, getDoc, doc, setDoc} from 'firebase/firestore';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import * as Clipboard from 'expo-clipboard';
@@ -9,7 +9,7 @@ import { db } from '../firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 
-const HomeScreen = ({ room, setRoom, navigation }) => {
+const HomeScreen = ({ room, setRoom, user }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [roomIdInput, setRoomIdInput] = useState('');
 
@@ -38,10 +38,18 @@ const HomeScreen = ({ room, setRoom, navigation }) => {
         createdAt: new Date(),
         roomId: uuidv4(),
         isActive: true,
+        members: [user.uid]
       };
       const docRef = await addDoc(collection(db, 'rooms'), newRoom);
       setRoom({ id: docRef.id, ...newRoom });
+
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        room: newRoom.roomId,
+      })
+
       showAlert('Room Created', `Room ID: ${newRoom.roomId}`);
+
     } catch (error) {
       console.error('Error creating room:', error);
       showAlert('Error', 'Failed to create room. Please try again.');

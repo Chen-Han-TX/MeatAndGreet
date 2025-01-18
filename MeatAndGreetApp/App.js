@@ -38,6 +38,7 @@ const IngredientsStack = ({ room }) => (
 );
 
 const App = () => {
+    // User and room are Firebase objects
   const [user, setUser] = useState(null);
   const [room, setRoom] = useState(null);
   const [preferencesCompleted, setPreferencesCompleted] = useState(false);
@@ -78,7 +79,7 @@ const App = () => {
 
         <Tab.Screen name="Home">
           {(props) => (
-            <HomeScreen {...props} room={room} setRoom={setRoom} />
+            <HomeScreen {...props} room={room} user={user} setRoom={setRoom} />
           )}
         </Tab.Screen>
 

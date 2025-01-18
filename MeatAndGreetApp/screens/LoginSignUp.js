@@ -45,7 +45,6 @@ const LoginSignUp = ({ onPreferencesSaved }) => {
   
       setModalVisible(true); // Show modal
       await setDoc(doc(db, 'users', uid), { email });
-  
 
       console.log('Modal visibility set to true');
     } catch (error) {
@@ -70,7 +69,7 @@ const LoginSignUp = ({ onPreferencesSaved }) => {
       setUser({ uid, email });
       const userDoc = await getDoc(doc(db, 'users', uid));
 
-      if (!userDoc.exists()) {
+      if (!userDoc) {
         setModalVisible(true); // Show preferences modal if no preferences exist
       } else {
         onPreferencesSaved && onPreferencesSaved(); // Notify parent component
