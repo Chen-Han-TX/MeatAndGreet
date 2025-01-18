@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, Settings } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,9 +11,9 @@ import Login from './screens/Login';
 import SignUp from './screens/SignUp';
 import HomeScreen from './screens/HomeScreen';
 import IngredientsScreen from './screens/IngredientsScreen';
-import Timer from './screens/ryantoh/Timer';
+import TimerScreen from './screens/TimerScreen';
 import SettingsScreen from './screens/SettingsScreen';
-// import FairpriceScraper from './screens/ryantoh/FairpriceScraper';
+
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -62,7 +62,7 @@ const App = () => {
               Home: 'home',
               Ingredients: 'list',
               Timer: 'timer',
-              Setting: 'settings',
+              Settings: 'settings',
             };
             return (
               <Icon name={icons[route.name]} type="material" color={color} size={size} />
@@ -94,8 +94,23 @@ const App = () => {
             {(props) => <IngredientsScreen {...props} room={room} />}
           </Tab.Screen>
         )}
-        <Tab.Screen name="Timer" component={Timer} />
-        <Tab.Screen name="Setting" component={SettingsScreen} />
+        {/* Conditional Tab Rendering */}
+        {room && (
+          <Tab.Screen
+            name="Timer"
+            listeners={{
+              tabPress: (e) => {
+                if (!room) {
+                  e.preventDefault();
+                  Alert.alert('Room Required', 'Please create a room first!');
+                }
+              },
+            }}
+          >
+            {(props) => <TimerScreen {...props} room={room} />}
+          </Tab.Screen>
+        )}
+        <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
