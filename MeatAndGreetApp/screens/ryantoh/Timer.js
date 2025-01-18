@@ -1,56 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
+import React, { useState } from 'react';
+import { Text, FlatList, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 
-const Timer = ({ roomId }) => {
-  const [ingredients, setIngredients] = useState([]);
+const IngredientTimer = ({ ingredients }) => {
   const [selectedTimer, setSelectedTimer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
-
-  // Fetch ingredient data from Firestore
-  useEffect(() => {
-    const fetchIngredients = async () => {
-      try {
-        const foodListRef = doc(db, `rooms/room_id`); 
-       // const foodListRef = doc(db, `rooms/${roomId}`); // Use dynamic roomId
-        const foodListDoc = await getDoc(foodListRef);
-
-        if (foodListDoc.exists()) {
-          const foodData = foodListDoc.data().foodList;
-          const formattedData = Object.entries(foodData).map(([name, details]) => ({
-            name,
-            ...details,
-          }));
-          setIngredients(formattedData);
-        } else {
-          console.log('No food list found!');
-        }
-      } catch (error) {
-        console.error('Error fetching food list:', error);
-      }
-    };
-
-    fetchIngredients();
-  }, [roomId]);
+  const [timerInterval, setTimerInterval] = useState(null);
 
   const handlePress = (ingredient) => {
+    // If there's an active timer, clear it
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
+
+    // Set which ingredient is selected
     setSelectedTimer(ingredient.name);
-    const timerDuration = parseInt(ingredient.time, 10); // Ensure time is a number
+
+    // Convert time to an integer
+    const timerDuration = parseInt(ingredient.time, 10) || 20; // default 20 if NaN
     setTimeLeft(timerDuration);
 
-    // Countdown timer logic
-    const interval = setInterval(() => {
+    // Start a new countdown
+    const intervalId = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
-          clearInterval(interval);
+          clearInterval(intervalId);
           setTimeLeft(null);
           setSelectedTimer(null);
           Alert.alert(`${ingredient.name} is done!`);
+          return 0; 
         }
         return prevTime - 1;
       });
     }, 1000);
+
+    // Save interval so we can clear it if user presses another ingredient
+    setTimerInterval(intervalId);
   };
 
   const renderIngredient = ({ item }) => {
@@ -61,9 +45,9 @@ const Timer = ({ roomId }) => {
         style={[styles.ingredientCard, isSelected && styles.selectedCard]}
         onPress={() => handlePress(item)}
       >
-        <Image source={{ uri: item.imgURL }} style={styles.ingredientImage} />
+        <Image source={{ uri: item.image }} style={styles.ingredientImage} />
         <Text style={styles.ingredientText}>{item.name}</Text>
-        {isSelected && (
+        {isSelected && timeLeft !== null && (
           <Text style={styles.timerText}>
             {timeLeft > 0 ? `${timeLeft}s` : 'Done!'}
           </Text>
@@ -117,4 +101,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Timer;
+export default IngredientTimer;
