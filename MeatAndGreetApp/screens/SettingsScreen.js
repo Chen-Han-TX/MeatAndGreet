@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { doc, getDoc } from 'firebase/firestore';
+import { View, Text, StyleSheet, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { Button } from 'react-native-elements';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 
 const SettingsScreen = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState('');
+  const [preferences, setPreferences] = useState('');
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -16,7 +20,10 @@ const SettingsScreen = () => {
           const userDoc = await getDoc(userDocRef);
 
           if (userDoc.exists()) {
-            setUserData(userDoc.data());
+            const data = userDoc.data();
+            setUserData(data);
+            setEmail(data.email || '');
+            setPreferences(data.preferences || '');
           } else {
             console.log('No user data found!');
           }
@@ -30,6 +37,23 @@ const SettingsScreen = () => {
 
     fetchUserData();
   }, []);
+
+  const handleSave = async () => {
+    setUpdating(true);
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, 'users', user.uid);
+        await setDoc(userDocRef, { email, preferences }, { merge: true });
+        Alert.alert('Success', 'Your preferences have been updated!');
+      }
+    } catch (error) {
+      console.error('Error updating preferences:', error);
+      Alert.alert('Error', 'Failed to update preferences. Please try again.');
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -51,19 +75,32 @@ const SettingsScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings</Text>
-      <Text style={styles.subtitle}>Your Hotpot Preferences</Text>
+      <Text style={styles.subtitle}>Edit Your Preferences</Text>
 
-      {/* Display user email */}
+      {/* Email (Read-only) */}
       <Text style={styles.label}>Email:</Text>
-      <Text style={styles.value}>{userData.email || 'Not available'}</Text>
+      <TextInput
+        style={[styles.input, { backgroundColor: '#f0f0f0' }]}
+        value={email}
+        editable={false}
+      />
 
-      {/* Display user preferences */}
+      {/* Preferences Input */}
       <Text style={styles.label}>Preferences:</Text>
-      <Text style={styles.value}>{userData.preferences || 'Not available'}</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Your preferences (e.g., I like beef)"
+        value={preferences}
+        onChangeText={setPreferences}
+      />
 
-      {/* Display user gender */}
-      <Text style={styles.label}>Gender:</Text>
-      <Text style={styles.value}>{userData.gender || 'Not specified'}</Text>
+      {/* Save Button */}
+      <Button
+        title={updating ? 'Saving...' : 'Save Preferences'}
+        buttonStyle={styles.saveButton}
+        onPress={handleSave}
+        disabled={updating}
+      />
     </View>
   );
 };
@@ -74,7 +111,15 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
   subtitle: { fontSize: 16, color: 'gray', marginBottom: 20 },
   label: { fontSize: 16, fontWeight: 'bold', marginTop: 10 },
-  value: { fontSize: 16, color: '#555' },
+  input: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  saveButton: { backgroundColor: '#4CAF50', marginTop: 20 },
   error: { fontSize: 16, color: 'red', marginTop: 20 },
 });
 
