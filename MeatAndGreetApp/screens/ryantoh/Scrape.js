@@ -1,6 +1,6 @@
 import cheerio from 'cheerio-without-node-native';
 
-export async function scrape(query) {
+export async function scrape(query, cookingTime) {
   console.log("Scraping with query:", query);
 
   try {
@@ -87,13 +87,13 @@ export async function scrape(query) {
           link: fullLink,
           supermarket: 'ntuc',
           image: imageUrl,
+          time: cookingTime, 
           weight: weightString, // <--- store weight here as a string
         });
       });
     });
-
-    console.log("Scraped results:", scrapedResults);
     // Return one result
+
     return scrapedResults[0];
   } catch (error) {
     console.error("Error scraping FairPrice:", error);
