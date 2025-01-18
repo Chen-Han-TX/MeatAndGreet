@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TextInput, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
+import { recommendItems } from "../screens/cbh/hotpotItemsRecommender"
 
 const HomeScreen = ({ room, startPlanning, leaveRoom, shareRoom, joinRoom, navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -56,6 +57,11 @@ const HomeScreen = ({ room, startPlanning, leaveRoom, shareRoom, joinRoom, navig
             title="Join Room"
             buttonStyle={styles.joinButton}
             onPress={() => setModalVisible(true)}
+          />
+          <Button
+              title="Testing chatgpt"
+              buttonStyle={styles.joinButton}
+              onPress={() => recommendItems("lol")}
           />
         </>
       )}

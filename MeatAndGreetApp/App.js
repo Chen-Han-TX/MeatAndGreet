@@ -37,10 +37,10 @@ const App = () => {
         createdAt: new Date(),
         roomId: uuidv4(),
         isActive: true, // Mark as active
+        members: ["Test User"],
       };
       const docRef = await addDoc(collection(db, 'rooms'), newRoom);
       const createdRoom = { id: docRef.id, ...newRoom };
-
       setRoom(createdRoom);
     } catch (error) {
       console.error('Error creating room:', error);
