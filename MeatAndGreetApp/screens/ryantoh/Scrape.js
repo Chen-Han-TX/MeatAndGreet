@@ -99,6 +99,7 @@ export async function scrape(query, cookingTime) {
         });
       });
     });
+    console.log("Scraped result is:", scrapedResults[0]);
     // Return one result
     return scrapedResults[0];
   } catch (error) {
