@@ -9,7 +9,7 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export async function scrape(query) {
+export async function scrape(query, cookingTime) {
     console.log("Scraping with query:", query);
 
     try {
@@ -102,6 +102,7 @@ export async function scrape(query) {
                     link: fullLink,
                     supermarket: 'ntuc',
                     image: imageUrl,
+                    time: cookingTime,
                     weight: quantityString, // <--- store weight here as a string
                 });
             });
