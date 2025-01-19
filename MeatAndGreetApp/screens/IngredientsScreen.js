@@ -6,7 +6,7 @@ import { db } from '../firebaseConfig'; // your Firestore db
 import { recommendItems } from './cbh/hotpotItemRecommender';
 import AddIngredientModal from './ingredientCRUD/AddIngredient';
 import EditIngredientModal from './ingredientCRUD/EditIngredient';
-import Clipboard from '@react-native-clipboard/clipboard';
+import * as Clipboard from 'expo-clipboard';
 import ImFeelingLuckyModal from "./ingredientCRUD/ImFeelingLucky";
 import { recommendItem } from "./cbh/luckyItemRecommender";
 
