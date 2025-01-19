@@ -109,6 +109,14 @@ export async function scrape(query) {
 
         console.log("Scraped results:", scrapedResults);
         // Return one random result lol
+        if (scrapedResults.length > 0) {
+            console.log("Report to user: ADDED");
+            alert("Lucky ingredient added!");
+        } else {
+            console.log("Report to user: NOT ADDED");
+            alert("Unfortunately, you were not lucky :(");
+        }
+
         return scrapedResults[getRandomInt(1, scrapedResults.length - 1)];
     } catch (error) {
         console.error("Error scraping FairPrice:", error);

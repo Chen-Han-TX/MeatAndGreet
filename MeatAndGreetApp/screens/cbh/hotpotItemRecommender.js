@@ -63,6 +63,7 @@ export const recommendItems = async (roomId) => {
     // 5) Parse the OpenAI response as JSON
     // Example response: '[["Beef Shabu Shabu", "20"], ["Broccoli", "60"]]'
     const content = completion.choices[0].message.content.trim();
+    
     /*[
   ["pork collar", "120"],
   ["shabu shabu", "90"],

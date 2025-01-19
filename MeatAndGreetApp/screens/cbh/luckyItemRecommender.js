@@ -4,7 +4,7 @@ import { db } from "../../firebaseConfig";  // Your Firestore instance
 import { scrape } from "../ryantoh/ScrapeRandom"; // Your scraping function
 import config from "../../config";          // Contains OPENAI_API_KEY, etc.
 
-/**
+/**;
  * Generates recommended food items and their respective attributes based on the provided item name.
  *
  * This asynchronous function uses OpenAI's API to generate recommendations for similar food items
@@ -44,10 +44,10 @@ export const recommendItem = async (roomId, itemName) => {
                 {
                     role: "system",
                     content:
-                        "You are to take in a string describing a food and return a Javascript array with ONE ELEMENT." +
-                        "The array MUST be structured in this way [[item, an emoji of the food item]]." +
-                        "You are to ONLY RETURN an array object, without any other words or content or formatting whatsoever." +
-                        "Phrase the item name similar to common supermarket food items.",
+                    "You are to take in a string of user preferences of food and return a Javascript array." +
+                    "The array MUST be structured in this way [[item name, in seconds of no less than 5 and no more than 300, of the best boiling time in a hotpot for the food item recommended in this list, be reasonable], [item name, item name, in seconds of no less than 10, of the best boiling time in a hotpot for the food item recommended in this list, be reasonable], ...]." +
+                    'An example will be [["Beef Shabu Shabu", "20"], ["Broccoli", "60"]].  IMPORTANT, You are to ONLY RETURN an array object, without any other words or content or formatting whatsoever.' +
+                    "Phrase the item name similar to common supermarket food items.",
                 },
                 {
                     role: "user",
@@ -57,7 +57,7 @@ export const recommendItem = async (roomId, itemName) => {
         });
 
         // 5) Parse the OpenAI response as JSON
-        // Example response: '[["Beef Shabu Shabu", "🥩"]'
+        // Example response: '[["Beef Shabu Shabu", "10"]'
         const content = completion.choices[0].message.content.trim();
         let inputArray;
         try {
@@ -72,9 +72,9 @@ export const recommendItem = async (roomId, itemName) => {
         // We'll store the scraping results in 'scrapedResults'
         const scrapedResults = [];
         for (let i = 0; i < inputArray.length; i++) {
-            const [productName] = inputArray[i]; // item = [ "Beef Shabu Shabu", "🥩" ]
+            const [productName, cookingTime] = inputArray[i]; // item = [ "Beef Shabu Shabu", "10" ]
             // Call your scrape function (async)
-            const result = await scrape(productName);
+            const result = scrape(productName, parseInt(cookingTime, 10));
             console.log("Scraped result:", result);
             if (result) {
                 scrapedResults.push(result);
@@ -94,11 +94,13 @@ export const recommendItem = async (roomId, itemName) => {
                     price: String(item.price),
                     weight: item.weight,
                     imgURL: item.image,
+                    time: "10",
                     storeURL: item.link
                 },
             };
             existingFood.push(entry);
         });
+
 
         // 8) Update the existing room document in Firestore
         // Only updating the 'food' field here; you can also update 'isActive', etc., if desired
@@ -107,9 +109,10 @@ export const recommendItem = async (roomId, itemName) => {
             // createdAt: new Date(),  // if you want to overwrite
             // isActive: true,         // if you want to overwrite
         });
-        alert("Lucky ingredient added!");
+
+
         console.log("Room updated successfully with LUCKY ITEM:", roomId);
     } catch (error) {
-        console.error("Error in recommendItems:", error);
+        console.error("Error in recommendItem:", error);
     }
 };
