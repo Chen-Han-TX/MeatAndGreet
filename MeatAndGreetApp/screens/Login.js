@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, Alert } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+
 
 // Import the gradient component from Expo
 import { LinearGradient } from 'expo-linear-gradient';
@@ -34,9 +35,13 @@ const Login = ({ navigation }) => {
       style={styles.gradientBackground}
     >
       <View style={styles.card}>
+         <Image source={require('../assets/logo.png')} style={styles.logo} />
+
+
         <Text style={styles.title}>Login</Text>
 
         {/* Email Input */}
+
         <Input
           placeholder="Email"
           leftIcon={{ type: 'material', name: 'email', color: '#999' }}
@@ -83,6 +88,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logo: {
+    width: 150, // Adjust the width
+    height: 150, // Adjust the height
+    marginBottom: 20,
   },
   card: {
     width: '85%',
