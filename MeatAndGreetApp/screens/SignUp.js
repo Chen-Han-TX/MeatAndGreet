@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { Button } from 'react-native-elements';
+import {Button, Input} from 'react-native-elements';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
+import {LinearGradient} from "expo-linear-gradient";
 
 const SignUp = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -32,84 +33,129 @@ const SignUp = ({ navigation }) => {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign Up Page</Text>
+    return (
+        <LinearGradient
+            // Matching the gradient colors from the Login screen
+            colors={['#ffafbd', '#ffc3a0']}
+            style={styles.gradientBackground}
+        >
+            <View style={styles.card}>
+                <Text style={styles.title}>Sign Up</Text>
 
-      {/* Email Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
+                {/* Email Input */}
+                <Input
+                    placeholder="Email"
+                    leftIcon={{ type: 'material', name: 'email', color: '#999' }}
+                    containerStyle={styles.inputContainer}
+                    inputStyle={styles.inputText}
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                />
 
-      {/* Password Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+                {/* Password Input */}
+                <Input
+                    placeholder="Password"
+                    leftIcon={{ type: 'material', name: 'lock', color: '#999' }}
+                    containerStyle={styles.inputContainer}
+                    inputStyle={styles.inputText}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                />
 
-      {/* Gender Picker */}
-      <Text style={styles.label}>Select Gender:</Text>
-      <Picker
-        selectedValue={gender}
-        onValueChange={(itemValue) => setGender(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Select Gender" value="" />
-        <Picker.Item label="Male" value="Male" />
-        <Picker.Item label="Female" value="Female" />
-        <Picker.Item label="Other" value="Other" />
-      </Picker>
+                {/* Gender Picker */}
+                <Text style={styles.label}>Select Gender:</Text>
+                <Picker
+                    selectedValue={gender}
+                    onValueChange={(itemValue) => setGender(itemValue)}
+                    style={styles.picker}
+                >
+                    <Picker.Item label="Select Gender" value="" />
+                    <Picker.Item label="Male" value="Male" />
+                    <Picker.Item label="Female" value="Female" />
+                    <Picker.Item label="Other" value="Other" />
+                </Picker>
 
-      {/* Preferences Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Preferences (e.g., I like to eat beef)"
-        value={preferences}
-        onChangeText={setPreferences}
-      />
+                {/* Preferences Input */}
+                <Input
+                    placeholder="Preferences (e.g: Beef, Enoki Mushroom, Quail Eggs)"
+                    containerStyle={styles.inputContainer}
+                    inputStyle={styles.inputText}
+                    value={preferences}
+                    onChangeText={setPreferences}
+                />
 
-      {/* Sign Up Button */}
-      <Button title="Sign Up" buttonStyle={styles.authButton} onPress={handleSignUp} />
+                {/* Sign Up Button */}
+                <Button
+                    title="Sign Up"
+                    buttonStyle={styles.authButton}
+                    onPress={handleSignUp}
+                />
 
-      {/* Back to Login Button */}
-      <Button
-        title="Back to Login"
-        buttonStyle={styles.backButton}
-        onPress={() => navigation.goBack()}
-      />
-    </View>
-  );
+                {/* Back to Login Button */}
+                <Button
+                    title="Back to Login"
+                    type="clear"
+                    titleStyle={styles.backText}
+                    onPress={() => navigation.goBack()}
+                />
+            </View>
+        </LinearGradient>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-  label: { fontSize: 16, marginBottom: 5, alignSelf: 'flex-start', marginLeft: '10%' },
-  authButton: { backgroundColor: 'green', paddingHorizontal: 20, marginBottom: 10 },
-  backButton: { backgroundColor: '#4285F4', paddingHorizontal: 20, marginBottom: 10 },
-  input: {
-    width: '80%',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 15,
-  },
-  picker: {
-    width: '80%',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 5,
-    marginBottom: 15,
-  },
+    gradientBackground: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    card: {
+        width: '90%',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    inputContainer: {
+        marginBottom: 15,
+    },
+    inputText: {
+        fontSize: 16,
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: 5,
+    },
+    picker: {
+        width: '100%',
+        height: 50,
+        marginBottom: 15,
+    },
+    authButton: {
+        backgroundColor: '#28A745',
+        borderRadius: 5,
+        marginVertical: 10,
+        width: 200
+    },
+    backText: {
+        color: '#007BFF',
+        fontSize: 16,
+    },
 });
+
 
 export default SignUp;
