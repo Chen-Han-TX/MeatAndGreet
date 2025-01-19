@@ -51,9 +51,14 @@ export async function scrape(query, cookingTime) {
                 const productTitle = imgElem.attr('title') || 'Unknown';
 
                 // Get the image URL and ensure it is fully qualified
-                let imageUrl = imgElem.attr('src') || '';
-                if (imageUrl && !imageUrl.startsWith('http')) {
-                    imageUrl = 'https://www.fairprice.com.sg' + imageUrl;
+                let imageUrl = imgElem.attr('data-src') || imgElem.attr('src') || '';
+                if (imageUrl) {
+                    // Ensure the URL is valid
+                    if (imageUrl.startsWith('data:image') || imageUrl === '') {
+                        imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'; // Default image
+                    } else if (!imageUrl.startsWith('http')) {
+                        imageUrl = 'https://www.fairprice.com.sg' + imageUrl; // Complete relative URLs
+                    }
                 }
 
                 // Build product link
@@ -109,16 +114,16 @@ export async function scrape(query, cookingTime) {
         });
 
         console.log("Scraped results:", scrapedResults);
-        // Return one random result lol
-        if (scrapedResults.length > 0) {
-            console.log("Report to user: ADDED");
-            alert("Lucky ingredient added!");
-        } else {
-            console.log("Report to user: NOT ADDED");
-            alert("Unfortunately, you were not lucky :(");
+        if (scrapedResults.length === 0) {
+            alert("No items found :(");
+            console.log("No items found for query:", query);
+            return null;
         }
-        console.log(scrapedResults[getRandomInt(1, scrapedResults.length - 1)]);
-        return scrapedResults[getRandomInt(1, scrapedResults.length - 1)];
+
+        const randomIndex = getRandomInt(0, scrapedResults.length - 1); // Allow index 0
+        console.log("Scraped result is:", scrapedResults[randomIndex]);
+        return scrapedResults[randomIndex];
+
     } catch (error) {
         console.error("Error scraping FairPrice:", error);
         throw error;

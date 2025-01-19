@@ -21,7 +21,7 @@ import config from "../../config";          // Contains OPENAI_API_KEY, etc.
  */
 export const recommendItem = async (roomId, itemName) => {
     try {
-        console.log("Generating recommendations for room:", roomId);
+        console.log("Generating recommendation for room:", roomId);
 
         // 1) Initialize OpenAI
         const openai = new OpenAI({
@@ -57,14 +57,19 @@ export const recommendItem = async (roomId, itemName) => {
         });
 
         // 5) Parse the OpenAI response as JSON
-        // Example response: '[["Beef Shabu Shabu", "10"]]'
+        // Example response: '[["Beef Shabu Shabu", "20"], ["Broccoli", "60"]]'
         const content = completion.choices[0].message.content.trim();
+
+        // Sanitize the response
+        const sanitizedContent = content.replace(/[\n\r`']+/g, ''); // Remove newline characters
+
         let inputArray;
         try {
-            inputArray = JSON.parse(content); // must be a valid JSON array
+            // Try parsing the cleaned-up response
+            inputArray = JSON.parse(sanitizedContent); // must be a valid JSON array
         } catch (parseErr) {
             throw new Error(
-                `OpenAI did not return valid JSON array. Received:\n${content}\nError: ${parseErr}`
+                `OpenAI did not return valid JSON array. Received:\n${sanitizedContent}\nError: ${parseErr}`
             );
         }
 
@@ -89,21 +94,18 @@ export const recommendItem = async (roomId, itemName) => {
 
         scrapedResults.forEach((item) => {
             // Ensure item has the required fields
-            if (item.title && item.price && item.weight && item.image && item.link) {
-                const entry = {
-                    [item.title]: {
-                        price: String(item.price),
-                        weight: item.weight,
-                        imgURL: item.image,
-                        time: item.time, // Assuming "20" for cooking time, update as needed
-                        storeURL: item.link
-                    },
-                };
-                existingFood.push(entry);
-            } else {
-                console.log("Skipping item with missing fields:", item);
+            const entry = {
+                [item.title]: {
+                    price: String(item.price),
+                    weight: item.weight,
+                    imgURL: item.image,
+                    time: item.time, // Assuming "20" for cooking time, update as needed
+                    storeURL: item.link
+                },
+            };
+            existingFood.push(entry);
             }
-        });
+        );
 
         // 8) Update the existing room document in Firestore
         if (existingFood.length > 0) {
