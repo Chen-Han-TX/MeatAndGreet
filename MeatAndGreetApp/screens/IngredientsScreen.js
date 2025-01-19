@@ -110,8 +110,16 @@ const IngredientsScreen = ({ room }) => {
   };
 
   const handleLuckyIngredient = async (ingredient) => {
+    setLoading(true); // Start loading
     setShowImFeelingLuckyModal(false);
-    await recommendItem(room.id, ingredient)
+    try {
+      await recommendItem(room.id, ingredient)
+    } catch (error) {
+      console.error("Error handling lucky ingredient:", error);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+    
   }
 
   // -------------------------------------
@@ -239,7 +247,8 @@ const IngredientsScreen = ({ room }) => {
       <Button
           title="Im Feeling Lucky!"
           buttonStyle={styles.button}
-          onPress={() => setShowImFeelingLuckyModal(true)}
+          onPress={() => 
+            setShowImFeelingLuckyModal(true)}
       />
 
       <Button
