@@ -95,7 +95,7 @@ export const recommendItem = async (roomId, itemName) => {
                         price: String(item.price),
                         weight: item.weight,
                         imgURL: item.image,
-                        time: "20", // Assuming "20" for cooking time, update as needed
+                        time: item.time, // Assuming "20" for cooking time, update as needed
                         storeURL: item.link
                     },
                 };

@@ -117,7 +117,7 @@ export async function scrape(query, cookingTime) {
             console.log("Report to user: NOT ADDED");
             alert("Unfortunately, you were not lucky :(");
         }
-
+        console.log(scrapedResults[getRandomInt(1, scrapedResults.length - 1)]);
         return scrapedResults[getRandomInt(1, scrapedResults.length - 1)];
     } catch (error) {
         console.error("Error scraping FairPrice:", error);
